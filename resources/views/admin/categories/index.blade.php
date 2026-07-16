@@ -1,0 +1,53 @@
+@extends('admin.layouts.app')
+
+@section('title', 'Kategoriler')
+@section('header_title', 'Kategoriler')
+
+@section('content')
+<div class="table-container">
+    <div class="table-header">
+        <h3>Kategori Listesi</h3>
+        <a href="{{ route('categories.create') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Yeni Kategori
+        </a>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Sıra No</th>
+                    <th>Kategori Adı</th>
+                    <th style="width: 150px;">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($categories as $category)
+                <tr>
+                    <td>{{ $category->Sirano }}</td>
+                    <td>{{ $category->Urungrubu }}</td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="{{ route('categories.edit', $category->id) }}" class="btn-icon edit" title="Düzenle">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </a>
+                            <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Bu kategoriyi silmek istediğinize emin misiniz?');" style="display:inline-block;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon delete" title="Sil">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                @endforeach
+                @if($categories->count() == 0)
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 2rem;">Henüz kayıtlı kategori bulunmamaktadır.</td>
+                </tr>
+                @endif
+            </tbody>
+        </table>
+    </div>
+</div>
+@endsection

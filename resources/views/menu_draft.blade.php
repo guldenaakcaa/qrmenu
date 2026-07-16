@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Menü Taslağı</title>
+    <title>{{ $settings && $settings->baslik ? $settings->baslik : 'Menü' }}</title>
+    @if($settings && $settings->favicon)
+        <link rel="icon" href="{{ asset('storage/' . $settings->favicon) }}">
+    @endif
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- FontAwesome -->
@@ -75,7 +78,7 @@
         .product-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
         .product-card { background: var(--surface); border-radius: var(--radius); padding: 1rem; display: flex; gap: 1rem; box-shadow: var(--shadow); position: relative; }
         
-        .product-img-wrapper { width: 90px; height: 90px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
+        .product-img-wrapper { width: 120px; height: 120px; border-radius: 20px; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
         .product-img { width: 100%; height: 100%; object-fit: cover; }
         
         .product-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
@@ -119,7 +122,7 @@
         .bottom-sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
         .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
         
-        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); border-radius: 28px 28px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1); max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
+        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); border-radius: 28px 28px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1); max-height: 95vh; height: auto; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
         .bottom-sheet.active { transform: translateY(0); }
         
         .bs-header { padding: 1.25rem 1.25rem 0.5rem; text-align: center; position: relative; flex-shrink: 0; }
@@ -168,7 +171,12 @@
                     <i class="fa-solid fa-bars" style="font-size: 1.5rem; color: var(--text);"></i>
                 </div>
                 <div class="logo" style="margin-left: 5px;">
-                    <i class="fa-solid fa-utensils"></i> Center Cafe
+                    @if($settings && $settings->logo)
+                        <img src="{{ asset('storage/' . $settings->logo) }}" style="height: 24px; border-radius: 4px;" alt="Logo">
+                    @else
+                        <i class="fa-solid fa-utensils"></i> 
+                    @endif
+                    {{ $settings && $settings->baslik ? $settings->baslik : 'Center Cafe' }}
                 </div>
             </div>
             <div style="display: flex; gap: 1.25rem; align-items: center;">
@@ -233,6 +241,8 @@
                                      'has_lactose' => $urun->has_lactose ?? 0,
                                      'has_gluten' => $urun->has_gluten ?? 0,
                                      'malzemeler' => $urun->malzeme_listesi ?? [],
+                                     'kalori' => $urun->kalori ?? '',
+                                     'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
                                      'resim' => ($urun->UrunResimPath && $urun->UrunResimPath !== '0') ? asset('storage/' . $urun->UrunResimPath) : ''
                                  ], JSON_UNESCAPED_UNICODE) }}"
                                  onclick="openBottomSheet(this, event)">
@@ -285,6 +295,8 @@
         @endforeach
     </main>
 
+
+
     <div class="fab" id="view-cart-btn" style="display: none;">
         <i class="fa-solid fa-basket-shopping"></i>
         Sepeti Gör <span id="fab-total">₺0</span>
@@ -294,15 +306,77 @@
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
-            <h3>Menü Kategorileri</h3>
+            <h3>{{ $settings && $settings->baslik ? $settings->baslik : 'Menü' }}</h3>
             <i class="fa-solid fa-xmark" onclick="toggleSidebar()" style="font-size: 1.5rem; cursor: pointer; color: var(--text);"></i>
         </div>
         <div class="sidebar-content">
-            @foreach($categories as $index => $category)
-                <div class="sidebar-item" onclick="scrollToCategory('cat-{{ $index }}', document.querySelector('[data-target=\'cat-{{ $index }}\']')); toggleSidebar()">
-                    {{ $category }}
+            
+            <!-- Kategoriler Accordion Header -->
+            <div onclick="toggleSidebarSection('cats-section')" style="padding: 0.75rem 1.25rem; margin-bottom: 0.5rem; font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                Kategoriler <i class="fa-solid fa-chevron-down" id="cats-section-icon" style="transition: transform 0.3s; transform: rotate(180deg);"></i>
+            </div>
+            <!-- Kategoriler Accordion Content -->
+            <div id="cats-section" style="margin-bottom: 1rem; overflow: hidden; transition: max-height 0.3s ease-out; max-height: 1000px;">
+                @foreach($categories as $index => $category)
+                    <div class="sidebar-item" onclick="scrollToCategory('cat-{{ $index }}', document.querySelector('[data-target=\'cat-{{ $index }}\']')); toggleSidebar()">
+                        <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem; color: #cbd5e1; margin-right: 8px;"></i> {{ $category }}
+                    </div>
+                @endforeach
+            </div>
+
+            <!-- İletişim Bilgileri Accordion Header -->
+            <div onclick="toggleSidebarSection('contact-section')" style="padding: 0.75rem 1.25rem; margin-bottom: 1rem; font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                İletişim Bilgileri <i class="fa-solid fa-chevron-down" id="contact-section-icon" style="transition: transform 0.3s; transform: rotate(180deg);"></i>
+            </div>
+            <!-- İletişim Bilgileri Accordion Content -->
+            <div id="contact-section" style="overflow: hidden; transition: max-height 0.3s ease-out; max-height: 1000px;">
+                <div style="padding: 0 1.25rem 2rem; display: flex; flex-direction: column; gap: 1.25rem;">
+                    @if($settings && $settings->telefon)
+                        <a href="tel:{{ $settings->telefon }}" style="display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-phone" style="color: var(--primary);"></i></div>
+                            {{ $settings->telefon }}
+                        </a>
+                    @endif
+                    
+                    @if($settings && $settings->whatsapp_number)
+                        <a href="https://wa.me/{{ $settings->whatsapp_number }}" target="_blank" style="display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center;"><i class="fa-brands fa-whatsapp" style="font-size: 1.1rem; color: #25D366;"></i></div>
+                            WhatsApp Hattı
+                        </a>
+                    @endif
+
+                    @if($settings && $settings->instagram_url)
+                        <a href="{{ $settings->instagram_url }}" target="_blank" style="display: flex; align-items: center; gap: 12px; color: var(--text); text-decoration: none; font-size: 0.95rem; font-weight: 500;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center;"><i class="fa-brands fa-instagram" style="font-size: 1.1rem; color: #E1306C;"></i></div>
+                            Instagram
+                        </a>
+                    @endif
+
+                    @if($settings && $settings->adres)
+                        <div style="display: flex; align-items: flex-start; gap: 12px; color: var(--text); font-size: 0.9rem; line-height: 1.4;">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-location-dot" style="color: var(--primary);"></i></div>
+                            <div style="padding-top: 4px;">
+                                {{ $settings->adres }}
+                                @if($settings->google_map_url)
+                                    <div style="margin-top: 6px;"><a href="{{ $settings->google_map_url }}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">Haritada Gör &rarr;</a></div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
+
+                    @if($settings && $settings->wifi_ssid)
+                        <div style="margin-top: 0.5rem; padding-top: 1.25rem; border-top: 1px dashed var(--border); display: flex; align-items: center; gap: 12px; color: var(--text);">
+                            <div style="width: 36px; height: 36px; border-radius: 50%; background: #eff6ff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;"><i class="fa-solid fa-wifi" style="font-size: 1.1rem; color: #3b82f6;"></i></div>
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.95rem;">Ağ: {{ $settings->wifi_ssid }}</div>
+                                @if($settings->wifi_password)
+                                    <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 2px;">Şifre: {{ $settings->wifi_password }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
-            @endforeach
+            </div>
         </div>
     </div>
 
@@ -311,21 +385,15 @@
     <div class="bottom-sheet" id="bottom-sheet">
         <div class="bs-header" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div class="drag-handle"></div>
-            <img id="bs-product-img" src="" alt="" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; margin-bottom: 12px; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+            <img id="bs-product-img" src="" alt="" style="width: 240px; height: 240px; border-radius: 24px; object-fit: cover; margin-bottom: 16px; display: none; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
             <h3 class="bs-title" id="bs-product-name">Ürün Adı</h3>
-            <p class="bs-desc" id="bs-product-desc">Ürün açıklaması</p>
+            <p class="bs-desc" id="bs-product-desc" style="margin-bottom: 12px;">Ürün açıklaması</p>
+            <div id="bs-info-chips" style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap; margin-bottom: 8px;"></div>
         </div>
         
         <div class="bs-content">
             <!-- Dinamik Seçenekler (JS ile doldurulacak) -->
             <div id="dynamic-options-container"></div>
-
-            <!-- Sipariş Notu -->
-            <div class="options-group">
-                <div class="options-group-title">Sipariş Notu</div>
-                <textarea style="width: 100%; border: 1px solid var(--border); border-radius: 14px; padding: 1rem; font-family: inherit; font-size: 0.95rem; resize: none; background: var(--bg); color: var(--text); outline: none;" rows="2" placeholder="Özel bir isteğiniz var mı?"></textarea>
-            </div>
-
         </div>
 
         {{-- Sepete Ekle Butonu Geçici Olarak Kapatıldı
@@ -461,6 +529,26 @@
             }
         }
 
+        function toggleSidebarSection(id) {
+            const el = document.getElementById(id);
+            const icon = document.getElementById(id + '-icon');
+            
+            if (el.style.maxHeight === '0px' || el.style.maxHeight === '') {
+                // Expand
+                el.style.maxHeight = el.scrollHeight + 'px';
+                icon.style.transform = 'rotate(180deg)';
+                // Automatically set to none after transition so content can expand if window resizes
+                setTimeout(() => el.style.maxHeight = '1000px', 300); 
+            } else {
+                // Collapse
+                el.style.maxHeight = el.scrollHeight + 'px'; // Set to explicit px before collapse for animation
+                // Force repaint
+                void el.offsetWidth;
+                el.style.maxHeight = '0px';
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('active');
             document.getElementById('sidebar-overlay').classList.toggle('active');
@@ -485,6 +573,20 @@
             document.getElementById('bs-product-name').textContent = urunData.ad;
             document.getElementById('bs-product-desc').textContent = urunData.aciklama || '';
             
+            // Info Chips Render
+            let infoHtml = '';
+            const isDrink = urunData.is_drink === 1;
+            
+            if (urunData.fiyat) infoHtml += `<span style="background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; color: var(--primary);">₺${urunData.fiyat}</span>`;
+            if (urunData.kalori) infoHtml += `<span style="background: #fef2f2; color: #ef4444; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;"><i class="fa-solid fa-fire" style="margin-right: 4px;"></i>~${urunData.kalori} kcal</span>`;
+            if (urunData.hazirlanma_suresi) infoHtml += `<span style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;"><i class="fa-solid fa-clock" style="margin-right: 4px;"></i>~${urunData.hazirlanma_suresi}</span>`;
+            
+            if (isDrink && urunData.has_lactose === 1) {
+                infoHtml += `<div style="width: 100%; text-align: left; margin-top: 6px; font-size: 0.85rem; color: #64748b; font-weight: 500;"><i class="fa-solid fa-circle-info" style="color: #60a5fa; margin-right: 4px;"></i>Laktozsuz seçeneği bulunmaktadır.</div>`;
+            }
+            
+            document.getElementById('bs-info-chips').innerHTML = infoHtml;
+            
             const imgEl = document.getElementById('bs-product-img');
             if (urunData.resim) {
                 imgEl.src = urunData.resim;
@@ -498,148 +600,7 @@
             
             document.querySelectorAll('.extra-item-cb').forEach(cb => cb.checked = false);
             
-            // Dinamik Opsiyonları Render Et
-            const malzemeListesi = urunData.malzemeler || [];
             let dynamicOptionsHtml = '';
-            
-            if (urunData.has_lactose === 1) {
-                dynamicOptionsHtml += `<div class="options-group">
-                    <div class="options-group-title">Süt Ürünü Tercihi</div>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="radio" name="laktoz_secim" value="normal" style="display: none;" checked onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-radio"></div> Standart (Laktozlu)</div>
-                        </div>
-                    </label>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="radio" name="laktoz_secim" value="laktozsuz" data-price="10" class="extra-item-cb" style="display: none;" onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-radio"></div> Laktozsuz Süt/Ürün Kullanılsın</div>
-                            <div class="option-price">+10 TL</div>
-                        </div>
-                    </label>
-                </div>`;
-            }
-            if (urunData.has_gluten === 1) {
-                dynamicOptionsHtml += `<div class="options-group">
-                    <div class="options-group-title">Gluten Tercihi</div>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="radio" name="gluten_secim" value="normal" style="display: none;" checked onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-radio"></div> Standart (Glutenli)</div>
-                        </div>
-                    </label>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="radio" name="gluten_secim" value="glutensiz" data-price="15" class="extra-item-cb" style="display: none;" onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-radio"></div> Glutensiz Seçenek</div>
-                            <div class="option-price">+15 TL</div>
-                        </div>
-                    </label>
-                </div>`;
-            }
-
-            if (malzemeListesi.length > 0) {
-                const isPackaged = /(beer|şarap|wine|su|meşrubat|kola|fanta|sprite|soda|mineral|maden|şişe|bottle|can|kutu|shot|bira|vodka|cin|rakı)/i.test(urunData.kategori || '');
-                if (!isPackaged) {
-                    const cikarilacaklar = malzemeListesi.filter(m => {
-                        const l = m.toLowerCase();
-                        return l !== 'su' && l !== 'tuz';
-                    });
-                    
-                    if (cikarilacaklar.length > 0) {
-                        dynamicOptionsHtml += `<div class="options-group">
-                            <div class="options-group-title">Çıkarmak İstedikleriniz</div>`;
-                        cikarilacaklar.forEach((malzeme, index) => {
-                            dynamicOptionsHtml += `<label style="display: block; -webkit-tap-highlight-color: transparent;">
-                                <input type="checkbox" name="cikar_malzeme" value="${malzeme}" style="display: none;">
-                                <div class="option-item">
-                                    <div class="option-label"><div class="custom-checkbox"></div> ${malzeme}</div>
-                                </div>
-                            </label>`;
-                        });
-                        dynamicOptionsHtml += `</div>`;
-                    }
-                }
-            }
-
-            // Kategori bazlı ekstra seçenekler
-            const isDrink = urunData.is_drink === 1;
-            const isMineralWater = /(mineral|maden|soda)/i.test(urunData.ad || '') || /(mineral|maden|soda)/i.test(urunData.kategori || '');
-
-            if (isDrink) {
-                if (isMineralWater) {
-                    dynamicOptionsHtml += `<div class="options-group">
-                        <div class="options-group-title">Aroma Tercihi</div>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="aroma_secim" value="sade" style="display: none;" checked>
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Sade</div>
-                            </div>
-                        </label>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="aroma_secim" value="elmalı" style="display: none;">
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Elmalı</div>
-                            </div>
-                        </label>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="aroma_secim" value="karpuzlu" style="display: none;">
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Karpuzlu</div>
-                            </div>
-                        </label>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="aroma_secim" value="limonlu" style="display: none;">
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Limonlu</div>
-                            </div>
-                        </label>
-                    </div>`;
-                } else {
-                    // İçecekler için Ekstralar
-                    dynamicOptionsHtml += `<div class="options-group">
-                        <div class="options-group-title">Şeker Tercihi</div>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="seker_secim" value="sekerli" style="display: none;" checked>
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Şekerli</div>
-                            </div>
-                        </label>
-                        <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                            <input type="radio" name="seker_secim" value="sekersiz" style="display: none;">
-                            <div class="option-item">
-                                <div class="option-label"><div class="custom-radio"></div> Şekersiz</div>
-                            </div>
-                        </label>
-                    </div>`;
-                }
-            } else {
-                // Yemekler için Ekstralar
-                dynamicOptionsHtml += `<div class="options-group">
-                    <div class="options-group-title">Ekstralar</div>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="checkbox" name="ekstra_baharat" value="baharat" class="extra-item-cb" style="display: none;">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-checkbox"></div> Ekstra Baharat</div>
-                        </div>
-                    </label>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="checkbox" name="ekstra_tursu" value="tursu" data-price="5" class="extra-item-cb" style="display: none;" onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-checkbox"></div> Ekstra Turşu</div>
-                            <div class="option-price">+5 TL</div>
-                        </div>
-                    </label>
-                    <label style="display: block; -webkit-tap-highlight-color: transparent;">
-                        <input type="checkbox" name="ekstra_sos" value="sos" data-price="8" class="extra-item-cb" style="display: none;" onchange="calculateTotal()">
-                        <div class="option-item">
-                            <div class="option-label"><div class="custom-checkbox"></div> Ekstra Sos</div>
-                            <div class="option-price">+8 TL</div>
-                        </div>
-                    </label>
-                </div>`;
-            }
             
             const dynamicContainer = document.getElementById('dynamic-options-container');
             if (dynamicContainer) {

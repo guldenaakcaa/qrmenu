@@ -40,6 +40,8 @@ class UrunKart extends Model
         'CokSatan',
         'textraozellik',
         'P_Tanim',
+        'kalori',
+        'hazirlanma_suresi',
     ];
 
 }

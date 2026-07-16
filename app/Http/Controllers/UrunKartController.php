@@ -28,6 +28,8 @@ class UrunKartController extends Controller
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
             'FixFiyat' => 'nullable|numeric',
+            'kalori' => 'nullable|string|max:255',
+            'hazirlanma_suresi' => 'nullable|string|max:255',
             'UrunResimPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'UrunGrubu_id' => 'required|integer',
         ]);
@@ -57,6 +59,8 @@ class UrunKartController extends Controller
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
             'FixFiyat' => 'nullable|numeric',
+            'kalori' => 'nullable|string|max:255',
+            'hazirlanma_suresi' => 'nullable|string|max:255',
             'UrunResimPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'UrunGrubu_id' => 'required|integer',
         ]);

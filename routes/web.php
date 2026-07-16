@@ -20,7 +20,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\MenuController;
 
 // Eski Ana Sayfa
-Route::get('/', [MainController::class, 'index'])->name('home');
+Route::get('/', function () {
+    $settings = \App\Models\Ayar::first();
+    return view('welcome', compact('settings'));
+})->name('home');
 Route::get('/{qrcode}', [MainController::class, 'index'])->where('qrcode', '[0-9]+')->name('homepage.qr');
 
 // Yeni Modern QR Menü
@@ -31,8 +34,16 @@ Route::get('/product/{id}', [MainController::class, 'showproduct'])->name('produ
 Route::get('/istek', [MainController::class, 'istek']);
 Route::post('/istek', [MainController::class, 'UserForm'])->name('validate.form');
 
-Route::prefix('admin')->group(function () {
+Route::get('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+Route::post('/admin/login', [AdminController::class, 'authenticate'])->name('admin.authenticate');
+Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
+
+Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     Route::get('/', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('admin.settings');
+    Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
+    Route::post('/settings/password', [AdminController::class, 'updatePassword'])->name('admin.settings.password');
+    Route::get('/qr-studio', [AdminController::class, 'qrStudio'])->name('admin.qr');
     Route::resource('categories', UrunGrubuController::class);
     Route::resource('products', UrunKartController::class);
 });

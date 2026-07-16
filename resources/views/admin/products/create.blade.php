@@ -5,7 +5,7 @@
 
 @section('content')
 <div class="card" style="max-width: 800px;">
-    <form action="{{ route('products.store') }}" method="POST">
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
         
         <div class="form-group">
@@ -28,14 +28,24 @@
             <textarea id="UrunAciklama" name="UrunAciklama" class="form-control" placeholder="Örn: 150gr dana köfte, karamelize soğan, cheddar peyniri..."></textarea>
         </div>
 
-        <div class="form-group">
-            <label for="FixFiyat">Fiyat (₺)</label>
-            <input type="number" step="0.01" id="FixFiyat" name="FixFiyat" class="form-control" placeholder="Örn: 150.00">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="FixFiyat">Fiyat (₺)</label>
+                <input type="number" step="0.01" id="FixFiyat" name="FixFiyat" class="form-control" placeholder="Örn: 150.00">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="kalori">Kalori (kcal)</label>
+                <input type="text" id="kalori" name="kalori" class="form-control" placeholder="Örn: 450">
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+                <label for="hazirlanma_suresi">Hazırlanma Süresi</label>
+                <input type="text" id="hazirlanma_suresi" name="hazirlanma_suresi" class="form-control" placeholder="Örn: 15-20 dk">
+            </div>
         </div>
 
         <div class="form-group">
-            <label for="UrunResimPath">Ürün Görseli (URL veya Path)</label>
-            <input type="text" id="UrunResimPath" name="UrunResimPath" class="form-control" placeholder="Örn: images/burger.jpg">
+            <label for="UrunResimPath">Ürün Görseli</label>
+            <input type="file" id="UrunResimPath" name="UrunResimPath" class="form-control">
         </div>
         
         <div style="margin-top: 2rem; display: flex; gap: 10px;">

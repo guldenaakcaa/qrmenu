@@ -115,13 +115,24 @@
                 <i class="fa-solid fa-burger"></i>
                 <span>Ürünler</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.qr') }}" class="nav-item {{ request()->routeIs('admin.qr') ? 'active' : '' }}">
                 <i class="fa-solid fa-expand"></i>
                 <span>QR Kodlar</span>
             </a>
-            <a href="#" class="nav-item">
+            <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
                 <i class="fa-solid fa-gear"></i>
                 <span>Ayarlar</span>
+            </a>
+            <a href="{{ route('home') }}" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1);">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Ana Sayfaya Dön</span>
+            </a>
+            <form action="{{ route('admin.logout') }}" method="POST" id="logout-form" style="display: none;">
+                @csrf
+            </form>
+            <a href="#" class="nav-item" style="color: #ef4444;" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                <i class="fa-solid fa-right-from-bracket"></i>
+                <span>Çıkış Yap</span>
             </a>
         </nav>
     </aside>

@@ -12,7 +12,7 @@
         </div>
         <div class="stat-info">
             <h3>Toplam Kategori</h3>
-            <p>12</p>
+            <p>{{ $totalCategories }}</p>
         </div>
     </div>
     <div class="stat-card">
@@ -21,25 +21,7 @@
         </div>
         <div class="stat-info">
             <h3>Toplam Ürün</h3>
-            <p>148</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon orange">
-            <i class="fa-solid fa-eye"></i>
-        </div>
-        <div class="stat-info">
-            <h3>Menü Görüntülenmesi</h3>
-            <p>3,402</p>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-icon purple">
-            <i class="fa-solid fa-qrcode"></i>
-        </div>
-        <div class="stat-info">
-            <h3>Aktif Masalar</h3>
-            <p>24</p>
+            <p>{{ $totalProducts }}</p>
         </div>
     </div>
 </div>
@@ -64,18 +46,28 @@
                 </tr>
             </thead>
             <tbody>
+                @forelse($recentProducts as $product)
                 <tr>
-                    <td>Klasik Burger</td>
-                    <td>Ana Yemekler</td>
-                    <td>₺180.00</td>
+                    <td>{{ $product->UrunAd }}</td>
+                    <td>{{ $product->UrunGrubu }}</td>
+                    <td>₺{{ number_format((float)$product->FixFiyat, 2) }}</td>
                     <td><span class="status active" style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #dcfce7; color: #166534;">Aktif</span></td>
                     <td>
                         <div class="action-btns">
-                            <button class="btn-icon edit" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button class="btn-icon delete" title="Sil"><i class="fa-solid fa-trash"></i></button>
+                            <a href="{{ route('products.edit', $product->id) }}" class="btn-icon edit" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></a>
+                            <form action="{{ route('products.destroy', $product->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Emin misiniz?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn-icon delete" title="Sil" style="background: none; border: none;"><i class="fa-solid fa-trash"></i></button>
+                            </form>
                         </div>
                     </td>
                 </tr>
+                @empty
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 2rem;">Henüz ürün bulunmuyor.</td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>

@@ -19,5 +19,18 @@ class Ayar extends Model
         'baslik',
         'telefon',
         'localeLang',
+        'slogan',
+        'favicon',
+        'adres',
+        'google_map_url',
+        'instagram_url',
+        'whatsapp_number',
+        'wifi_ssid',
+        'wifi_password',
+        'karsilama_gorsel',
+        'para_birimi',
+        'kdv_orani',
+        'menu_durumu',
+        'coklu_dil_aktif'
     ];
 }

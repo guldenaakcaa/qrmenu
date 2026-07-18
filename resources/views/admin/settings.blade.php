@@ -107,47 +107,7 @@
 
 
 
-    <!-- 4. Hesap ve Güvenlik Ayarları -->
-    <div class="card">
-        <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
-            <i class="fa-solid fa-shield-halved" style="color: #ef4444; margin-right: 8px;"></i> Hesap ve Güvenlik Ayarları (Şifre Değiştirme)
-        </h3>
 
-        @if($errors->has('current_password'))
-            <div class="alert alert-error" style="background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                {{ $errors->first('current_password') }}
-            </div>
-        @endif
-        @if($errors->has('new_password'))
-            <div class="alert alert-error" style="background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
-                {{ $errors->first('new_password') }}
-            </div>
-        @endif
-
-        <form action="{{ route('admin.settings.password') }}" method="POST">
-            @csrf
-            <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; max-width: 500px;">
-                <div class="form-group">
-                    <label>Mevcut Şifreniz</label>
-                    <input type="password" name="current_password" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Yeni Şifreniz (En az 6 karakter)</label>
-                    <input type="password" name="new_password" class="form-control" required>
-                </div>
-                
-                <div class="form-group">
-                    <label>Yeni Şifre (Tekrar)</label>
-                    <input type="password" name="new_password_confirmation" class="form-control" required>
-                </div>
-            </div>
-
-            <div style="text-align: left; margin-top: 1rem;">
-                <button type="submit" class="btn" style="background-color: #1e293b; color: white;"><i class="fa-solid fa-key"></i> Şifremi Güncelle</button>
-            </div>
-        </form>
-    </div>
 
 </div>
 

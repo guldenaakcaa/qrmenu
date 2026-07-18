@@ -43,6 +43,14 @@
             </div>
         </div>
 
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="hidden" name="has_lactose" value="0">
+                <input type="checkbox" name="has_lactose" value="1" style="width: 18px; height: 18px;">
+                <span style="font-weight: 500; color: #1e293b;">Laktozsuz Seçeneği Bulunmaktadır</span>
+            </label>
+        </div>
+
         <div class="form-group">
             <label for="UrunResimPath">Ürün Görseli</label>
             <input type="file" id="UrunResimPath" name="UrunResimPath" class="form-control">

@@ -32,6 +32,7 @@ class UrunKartController extends Controller
             'hazirlanma_suresi' => 'nullable|string|max:255',
             'UrunResimPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'UrunGrubu_id' => 'required|integer',
+            'has_lactose' => 'boolean',
         ]);
 
         $data = $request->except('UrunResimPath');
@@ -63,6 +64,7 @@ class UrunKartController extends Controller
             'hazirlanma_suresi' => 'nullable|string|max:255',
             'UrunResimPath' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'UrunGrubu_id' => 'required|integer',
+            'has_lactose' => 'boolean',
         ]);
 
         $product = UrunKart::findOrFail($id);
@@ -96,5 +98,18 @@ class UrunKartController extends Controller
         $product->delete();
 
         return redirect()->route('products.index')->with('success', 'Ürün başarıyla silindi.');
+    }
+
+    public function toggleFeatured($id)
+    {
+        $product = UrunKart::findOrFail($id);
+        $product->one_cikan = !$product->one_cikan;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ürünün öne çıkma durumu güncellendi.',
+            'status' => $product->one_cikan
+        ]);
     }
 }

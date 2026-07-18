@@ -46,6 +46,14 @@
             </div>
         </div>
 
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="hidden" name="has_lactose" value="0">
+                <input type="checkbox" name="has_lactose" value="1" {{ $product->has_lactose ? 'checked' : '' }} style="width: 18px; height: 18px;">
+                <span style="font-weight: 500; color: #1e293b;">Laktozsuz Seçeneği Bulunmaktadır</span>
+            </label>
+        </div>
+
         <div class="form-group">
             <label for="UrunResimPath">Ürün Görseli</label>
             @if($product->UrunResimPath && $product->UrunResimPath !== '0')

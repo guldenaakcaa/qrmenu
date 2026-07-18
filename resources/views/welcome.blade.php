@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>{{ $settings && $settings->baslik ? $settings->baslik : 'Center Cafe' }} | Dijital Menü</title>
     @if($settings && $settings->favicon)
         <link rel="icon" href="{{ asset('storage/' . $settings->favicon) }}">
@@ -33,6 +33,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            padding: 2rem 0;
             @if($settings && $settings->karsilama_gorsel)
                 background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') no-repeat center center fixed;
                 background-size: cover;
@@ -40,7 +41,8 @@
                 background: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
             @endif
             position: relative;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             color: var(--text-dark);
         }
 
@@ -93,7 +95,7 @@
             border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 40px;
             padding: 4rem 3.5rem;
-            width: 95%;
+            width: 90%;
             max-width: 600px;
             text-align: center;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255,255,255,0.5) inset;
@@ -106,6 +108,18 @@
         .glass-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255,255,255,0.6) inset;
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 2.5rem 1.5rem;
+                border-radius: 30px;
+                width: 90%;
+            }
+            h1 {
+                font-size: 2.2rem !important;
+            }
         }
 
         /* 3D Logo Badge */
@@ -214,8 +228,8 @@
 
         /* Bottom Link */
         .admin-link {
-            position: absolute;
-            bottom: 2rem;
+            position: relative;
+            margin-top: 2rem;
             display: flex;
             align-items: center;
             gap: 6px;

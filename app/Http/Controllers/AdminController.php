@@ -24,7 +24,12 @@ class AdminController extends Controller
         $user = \Illuminate\Support\Facades\DB::table('users')->where('email', $request->email)->first();
 
         if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-            session(['admin_logged_in' => true]);
+            session([
+                'admin_logged_in' => true,
+                'admin_id' => $user->id,
+                'admin_name' => $user->name,
+                'admin_email' => $user->email
+            ]);
             return redirect()->route('admin.dashboard')->with('success', 'Başarıyla giriş yapıldı.');
         }
 
@@ -35,7 +40,7 @@ class AdminController extends Controller
 
     public function logout()
     {
-        session()->forget('admin_logged_in');
+        session()->forget(['admin_logged_in', 'admin_id', 'admin_name', 'admin_email']);
         return redirect()->route('admin.login');
     }
 
@@ -101,7 +106,11 @@ class AdminController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        $user = \Illuminate\Support\Facades\DB::table('users')->where('email', 'admin@centercafe.com')->first();
+        $userId = session('admin_id');
+        if (!$userId) {
+            return back()->withErrors(['current_password' => 'Oturum süresi dolmuş. Lütfen tekrar giriş yapın.']);
+        }
+        $user = \Illuminate\Support\Facades\DB::table('users')->where('id', $userId)->first();
 
         if (!\Illuminate\Support\Facades\Hash::check($request->current_password, $user->password)) {
             return back()->withErrors(['current_password' => 'Mevcut şifreniz yanlış.']);
@@ -112,5 +121,78 @@ class AdminController extends Controller
             ->update(['password' => bcrypt($request->new_password)]);
 
         return back()->with('success', 'Şifreniz başarıyla güncellendi.');
+    }
+
+    // Admin Management Methods
+    public function admins()
+    {
+        $admins = \Illuminate\Support\Facades\DB::table('users')->orderBy('id', 'asc')->get();
+        return view('admin.admins.index', compact('admins'));
+    }
+
+    public function storeAdmin(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6|confirmed'
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('users')->insert([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+            'yetki' => 'tahsilat|odeme|satisrapor',
+            'kullanicitipi' => 1,
+            'subeyetki' => '1',
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+
+        return back()->with('success', 'Yönetici başarıyla eklendi.');
+    }
+
+    public function updateAdmin(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'password' => 'nullable|min:6|confirmed'
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'updated_at' => now()
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->update($data);
+
+        // Update session if editing own profile
+        if (session('admin_id') == $id) {
+            session(['admin_name' => $request->name, 'admin_email' => $request->email]);
+        }
+
+        return back()->with('success', 'Yönetici bilgileri başarıyla güncellendi.');
+    }
+
+    public function destroyAdmin($id)
+    {
+        if (session('admin_id') == $id) {
+            return back()->withErrors(['Hata' => 'Kendi hesabınızı silemezsiniz.']);
+        }
+
+        // Pre-check if it's the very last admin
+        $adminCount = \Illuminate\Support\Facades\DB::table('users')->count();
+        if ($adminCount <= 1) {
+            return back()->withErrors(['Hata' => 'Sistemde tek yönetici kaldığı için silemezsiniz.']);
+        }
+
+        \Illuminate\Support\Facades\DB::table('users')->where('id', $id)->delete();
+        return back()->with('success', 'Yönetici silindi.');
     }
 }

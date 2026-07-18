@@ -42,6 +42,7 @@ class UrunKart extends Model
         'P_Tanim',
         'kalori',
         'hazirlanma_suresi',
+        'has_lactose',
     ];
 
 }

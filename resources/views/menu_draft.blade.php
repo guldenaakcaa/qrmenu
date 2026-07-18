@@ -78,8 +78,8 @@
         .product-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
         .product-card { background: var(--surface); border-radius: var(--radius); padding: 1rem; display: flex; gap: 1rem; box-shadow: var(--shadow); position: relative; }
         
-        .product-img-wrapper { width: 120px; height: 120px; border-radius: 20px; overflow: hidden; flex-shrink: 0; border: 1px solid var(--border); }
-        .product-img { width: 100%; height: 100%; object-fit: cover; }
+        .product-img-wrapper { width: 130px; height: 130px; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+        .product-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05)); }
         
         .product-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
         .product-name { font-size: 1rem; font-weight: 700; color: var(--text); line-height: 1.3; margin-bottom: 0.3rem; padding-right: 65px; } /* Space for absolute price badge */
@@ -142,6 +142,21 @@
         label:last-child .option-item { border-bottom: none; }
         .option-label { font-size: 0.95rem; font-weight: 500; color: var(--text); display: flex; align-items: center; gap: 12px; }
         .option-price { font-size: 0.95rem; color: var(--primary); font-weight: 600; }
+
+        /* Featured Slider Redesign */
+        .featured-section { padding: 0 1.25rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
+        .featured-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
+        .featured-title i { color: #ff4757; }
+        .featured-slider { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 15px; margin: 0 -1.25rem; padding-left: 1.25rem; padding-right: 1.25rem; }
+        .featured-slider::-webkit-scrollbar { display: none; }
+        .featured-card { flex: 0 0 200px; scroll-snap-align: start; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s ease; }
+        .featured-card:active { transform: scale(0.98); }
+        .featured-img-wrapper { width: 100%; height: 180px; background: transparent; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; }
+        .featured-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1)); }
+        .featured-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #cbd5e1; }
+        .featured-info { padding: 1rem; display: flex; flex-direction: column; gap: 6px; }
+        .featured-name { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+        .featured-price { font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; }
         
         /* Custom Checkbox & Radio */
         .custom-radio, .custom-checkbox { width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
@@ -201,6 +216,8 @@
             <div class="filter-pill" onclick="toggleFilter(this, 'laktoz')"><i class="fa-solid fa-cow" style="color: #60a5fa;"></i> Laktoz</div>
             <div class="filter-pill" onclick="toggleFilter(this, 'gluten')"><i class="fa-solid fa-wheat-awn text-amber-500"></i> Gluten</div>
         </div>
+
+
         
         <div class="categories" id="category-tabs">
             @foreach($categories as $index => $category)
@@ -215,6 +232,50 @@
     </header>
 
     <main>
+        @if(isset($featuredProducts) && $featuredProducts->count() > 0)
+        <!-- Öne Çıkanlar (Featured Slider) -->
+        <div class="featured-section">
+            <h2 class="featured-title"><i class="fa-solid fa-fire text-orange-500"></i> Şefin Tavsiyesi</h2>
+            <div class="featured-slider">
+                @foreach($featuredProducts as $urun)
+                    @php
+                        $featCatName = mb_strtolower($urun->UrunGrubu ?? '', 'UTF-8');
+                        $isFeatDrink = preg_match('/(drink|beer|şarap|wine|su|kahve|coffee|coffe|çay|tea|beverage|içecek|meşrubat|import|local|vodka|cin|rakı|bira|kokteyl|cocktail|cooktail|moctail|mocktail|ayran|kola|fanta|sprite|soda|milkshake|daiquiri|mojito|shot|frozen)/i', $featCatName);
+                    @endphp
+                    <div class="featured-card" onclick="openBottomSheet(this, event)" 
+                         data-urun="{{ json_encode([
+                             'ad' => $urun->UrunAd,
+                             'aciklama' => $urun->UrunAciklama,
+                             'fiyat' => (float)$urun->FixFiyat,
+                             'kategori' => $urun->UrunGrubu ?? '',
+                             'is_drink' => $isFeatDrink ? 1 : 0,
+                             'has_lactose' => $urun->has_lactose ?? 0,
+                             'has_gluten' => $urun->has_gluten ?? 0,
+                             'malzemeler' => $urun->malzeme_listesi ?? [],
+                             'kalori' => $urun->kalori ?? '',
+                             'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
+                             'resim' => $urun->UrunResimPath ? asset('storage/' . $urun->UrunResimPath) : null
+                         ]) }}"
+                         data-vegan="{{ $urun->is_vegan }}" 
+                         data-gluten="{{ $urun->has_gluten }}" 
+                         data-lactose="{{ $urun->has_lactose }}" 
+                         data-aci="{{ $urun->is_aci }}">
+                        <div class="featured-img-wrapper">
+                            @if($urun->UrunResimPath && $urun->UrunResimPath !== '0')
+                                <img src="{{ asset('storage/' . $urun->UrunResimPath) }}" alt="{{ $urun->UrunAdKisa ?? $urun->UrunAd }}" class="featured-img">
+                            @else
+                                <div class="featured-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                            @endif
+                        </div>
+                        <div class="featured-info">
+                            <h3 class="featured-name">{{ $urun->UrunAdKisa ?? $urun->UrunAd }}</h3>
+                            <div class="featured-price">₺{{ number_format((float)$urun->FixFiyat, 2) }}</div>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
         @foreach($categories as $index => $category)
             @if(isset($productsByCategory[$category]) && $productsByCategory[$category]->count() > 0)
                 <div class="category-section" id="cat-{{ $index }}">
@@ -385,7 +446,7 @@
     <div class="bottom-sheet" id="bottom-sheet">
         <div class="bs-header" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div class="drag-handle"></div>
-            <img id="bs-product-img" src="" alt="" style="width: 240px; height: 240px; border-radius: 24px; object-fit: cover; margin-bottom: 16px; display: none; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
+            <img id="bs-product-img" src="" alt="" style="width: 280px; height: 280px; object-fit: contain; margin-bottom: 16px; display: none; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));">
             <h3 class="bs-title" id="bs-product-name">Ürün Adı</h3>
             <p class="bs-desc" id="bs-product-desc" style="margin-bottom: 12px;">Ürün açıklaması</p>
             <div id="bs-info-chips" style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap; margin-bottom: 8px;"></div>
@@ -575,13 +636,13 @@
             
             // Info Chips Render
             let infoHtml = '';
-            const isDrink = urunData.is_drink === 1;
+            const isDrink = (urunData.is_drink == 1);
             
             if (urunData.fiyat) infoHtml += `<span style="background: #f1f5f9; padding: 4px 10px; border-radius: 8px; font-weight: 700; font-size: 0.95rem; color: var(--primary);">₺${urunData.fiyat}</span>`;
             if (urunData.kalori) infoHtml += `<span style="background: #fef2f2; color: #ef4444; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;"><i class="fa-solid fa-fire" style="margin-right: 4px;"></i>~${urunData.kalori} kcal</span>`;
             if (urunData.hazirlanma_suresi) infoHtml += `<span style="background: #eff6ff; color: #3b82f6; padding: 4px 10px; border-radius: 8px; font-weight: 600; font-size: 0.85rem;"><i class="fa-solid fa-clock" style="margin-right: 4px;"></i>~${urunData.hazirlanma_suresi}</span>`;
             
-            if (isDrink && urunData.has_lactose === 1) {
+            if (isDrink && urunData.has_lactose == 1) {
                 infoHtml += `<div style="width: 100%; text-align: left; margin-top: 6px; font-size: 0.85rem; color: #64748b; font-weight: 500;"><i class="fa-solid fa-circle-info" style="color: #60a5fa; margin-right: 4px;"></i>Laktozsuz seçeneği bulunmaktadır.</div>`;
             }
             

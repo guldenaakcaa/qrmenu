@@ -23,7 +23,7 @@ class MenuController extends Controller
             $aciUrunler = ['acı', 'jalapeno', 'chili', 'pul biber', 'acılı'];
 
             // Etiketleme (Flagging) - Tam Kelime (Word Boundary) Analizi
-            $product->has_lactose = preg_match('/\b(' . implode('|', $sutUrunleri) . ')\b/u', $aciklama) ? 1 : 0;
+            // $product->has_lactose veritabanından geliyor
             $product->has_gluten = preg_match('/\b(' . implode('|', $glutenUrunleri) . ')\b/u', $aciklama) ? 1 : 0;
             $product->is_vegan = (!preg_match('/\b(' . implode('|', $hayvansalUrunler) . ')\b/u', $aciklama) && $aciklama !== '') ? 1 : 0;
             $product->is_aci = preg_match('/\b(' . implode('|', $aciUrunler) . ')\b/u', $aciklama) ? 1 : 0;
@@ -77,6 +77,9 @@ class MenuController extends Controller
         $categories = $productsByCategory->keys();
         $settings = \App\Models\Ayar::first();
 
-        return view('menu_draft', compact('categories', 'productsByCategory', 'settings'));
+        // Öne çıkan (Featured) ürünleri filtrele
+        $featuredProducts = $products->where('one_cikan', 1);
+
+        return view('menu_draft', compact('categories', 'productsByCategory', 'settings', 'featuredProducts'));
     }
 }

@@ -92,6 +92,17 @@
         .stat-icon.purple { background-color: #faf5ff; color: #a855f7; }
         .stat-info h3 { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500; }
         .stat-info p { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0; }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px; }
+            .sidebar.active { transform: translateX(0); box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
+            .main-content { margin-left: 0; padding: 1rem; gap: 1rem; }
+            .mobile-toggle { display: block !important; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .top-header { padding: 1rem; flex-wrap: wrap; }
+            .top-header h1 { font-size: 1.1rem; }
+            .card { padding: 1rem; }
+            .table-container { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -101,6 +112,9 @@
         <div class="sidebar-header">
             <i class="fa-solid fa-qrcode"></i>
             <h2>QR Menü</h2>
+            <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.remove('active')" style="display: none; margin-left: auto; background: none; border: none; font-size: 1.25rem; color: var(--white); cursor: pointer;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
         </div>
         <nav class="nav-menu">
             <a href="{{ route('admin.dashboard') }}" class="nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
@@ -123,6 +137,10 @@
                 <i class="fa-solid fa-gear"></i>
                 <span>Ayarlar</span>
             </a>
+            <a href="{{ route('admin.admins') }}" class="nav-item {{ request()->routeIs('admin.admins') ? 'active' : '' }}">
+                <i class="fa-solid fa-users"></i>
+                <span>Yöneticiler</span>
+            </a>
             <a href="{{ route('home') }}" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1);">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>Ana Sayfaya Dön</span>
@@ -141,7 +159,12 @@
     <main class="main-content">
         <!-- Top Header -->
         <header class="top-header">
-            <h1>@yield('header_title', 'Genel Bakış')</h1>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.add('active')" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main);">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <h1>@yield('header_title', 'Genel Bakış')</h1>
+            </div>
             <div class="user-profile">
                 <span style="font-weight: 500;">Admin</span>
                 <div class="user-avatar">A</div>

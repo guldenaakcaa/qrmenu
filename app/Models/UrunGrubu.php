@@ -21,6 +21,4 @@ class UrunGrubu extends Model
         'UrunGrubuResimPath',
         'AnaGrup'
     ];
-}   
-
-
+} 

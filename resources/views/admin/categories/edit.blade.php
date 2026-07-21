@@ -16,7 +16,10 @@
         
         <div class="form-group">
             <label for="Sirano">Sıra No</label>
-            <input type="number" id="Sirano" name="Sirano" class="form-control" value="{{ $category->Sirano }}">
+            <input type="number" id="Sirano" name="Sirano" class="form-control" value="{{ old('Sirano', $category->Sirano) }}">
+            @error('Sirano')
+                <span style="color: #e11d48; font-size: 0.85rem; margin-top: 5px; display: block;">{{ $message }}</span>
+            @enderror
         </div>
         
         <div style="margin-top: 2rem; display: flex; gap: 10px;">

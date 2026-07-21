@@ -31,7 +31,7 @@
             <textarea id="UrunAciklama" name="UrunAciklama" class="form-control">{{ $product->UrunAciklama }}</textarea>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 1.5rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="FixFiyat">Fiyat (₺)</label>
                 <input type="number" step="0.01" id="FixFiyat" name="FixFiyat" class="form-control" value="{{ $product->FixFiyat }}">

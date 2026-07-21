@@ -15,7 +15,7 @@
         <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                 <div class="form-group">
                     <label>Restoran Adı</label>
                     <input type="text" name="baslik" class="form-control" value="{{ $settings->baslik }}">
@@ -30,19 +30,32 @@
                     <label>Logo</label>
                     <input type="file" name="logo" class="form-control" accept="image/*">
                     @if($settings->logo)
-                        <small style="display: block; margin-top: 5px;">Mevcut Logo Yüklü</small>
+                        <div style="margin-top: 10px; display: flex; align-items: center; gap: 15px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px;">
+                            <img src="{{ asset('storage/' . $settings->logo) }}" style="max-height: 40px; border-radius: 4px;">
+                            <button type="submit" name="remove_logo" value="1" class="btn btn-sm" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; margin-left: auto;" onclick="return confirm('Logoyu silmek istediğinize emin misiniz?')">
+                                <i class="fa-solid fa-trash"></i> Sil
+                            </button>
+                        </div>
                     @endif
                 </div>
 
                 <div class="form-group">
                     <label>Tarayıcı İkonu (Favicon)</label>
                     <input type="file" name="favicon" class="form-control" accept="image/*">
+                    @if($settings->favicon)
+                        <div style="margin-top: 10px; display: flex; align-items: center; gap: 15px; padding: 10px; border: 1px dashed var(--border-color); border-radius: 8px;">
+                            <img src="{{ asset('storage/' . $settings->favicon) }}" style="max-height: 32px; border-radius: 4px;">
+                            <button type="submit" name="remove_favicon" value="1" class="btn btn-sm" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 4px 10px; font-size: 0.8rem; border-radius: 4px; margin-left: auto;" onclick="return confirm('Faviconu silmek istediğinize emin misiniz?')">
+                                <i class="fa-solid fa-trash"></i> Sil
+                            </button>
+                        </div>
+                    @endif
                 </div>
             </div>
 
             <h4 style="margin: 1.5rem 0 1rem; font-size: 1rem; color: #475569;">İletişim & Sosyal Medya</h4>
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                 <div class="form-group">
                     <label>Telefon Numarası</label>
                     <input type="text" name="telefon" class="form-control" value="{{ $settings->telefon }}" placeholder="05XX XXX XX XX">
@@ -70,7 +83,7 @@
             </div>
 
             <h4 style="margin: 1.5rem 0 1rem; font-size: 1rem; color: #475569;">Wi-Fi Bilgileri</h4>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                 <div class="form-group">
                     <label>Ağ Adı (SSID)</label>
                     <input type="text" name="wifi_ssid" class="form-control" value="{{ $settings->wifi_ssid }}">
@@ -97,7 +110,15 @@
             <div class="form-group">
                 <label>Karşılama Ekranı Arka Plan Görseli</label>
                 <input type="file" name="karsilama_gorsel" class="form-control" accept="image/*">
-                <small style="color: #64748b; margin-top: 5px; display: block;">Müşteriler QR kodu okuttuğunda çıkan ilk ekrandaki arkaplan görselini buradan değiştirebilirsiniz. (Boş bırakılırsa standart tasarım kullanılır).</small>
+                @if($settings->karsilama_gorsel)
+                    <div style="margin-top: 15px; display: flex; align-items: flex-start; gap: 15px; padding: 15px; border: 1px dashed var(--border-color); border-radius: 8px; max-width: 400px;">
+                        <img src="{{ asset('storage/' . $settings->karsilama_gorsel) }}" style="max-height: 100px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <button type="submit" name="remove_karsilama_gorsel" value="1" class="btn btn-sm" style="background-color: #fee2e2; color: #ef4444; border: 1px solid #fca5a5; padding: 6px 12px; font-size: 0.85rem; border-radius: 4px; margin-left: auto;" onclick="return confirm('Karşılama görselini silmek istediğinize emin misiniz?')">
+                            <i class="fa-solid fa-trash"></i> Görseli Sil
+                        </button>
+                    </div>
+                @endif
+                <small style="color: #64748b; margin-top: 8px; display: block;">Müşteriler QR kodu okuttuğunda çıkan ilk ekrandaki arkaplan görselini buradan değiştirebilirsiniz. (Boş bırakılırsa standart tasarım kullanılır).</small>
             </div>
             <div style="text-align: right;">
                 <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Görünümü Kaydet</button>

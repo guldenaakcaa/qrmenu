@@ -8,7 +8,7 @@
     <div class="table-header" style="flex-wrap: wrap; gap: 1rem;">
         <h3 style="margin: 0;">Ürün Listesi</h3>
         
-        <div style="flex-grow: 1; max-width: 400px; position: relative;">
+        <div style="flex-grow: 1; max-width: 400px; min-width: 250px; position: relative;">
             <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
             <input type="text" id="adminProductSearch" onkeyup="filterAdminProducts()" placeholder="Ürün adı ile ara..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none;">
         </div>
@@ -21,7 +21,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Görsel</th>
+                    <th style="width: 1%; white-space: nowrap;">Görsel</th>
                     <th>Ürün Adı</th>
                     <th>Kategori</th>
                     <th>Fiyat</th>
@@ -32,7 +32,7 @@
             <tbody id="adminProductsTableBody">
                 @foreach($products as $product)
                 <tr class="product-row">
-                    <td>
+                    <td style="width: 1%; white-space: nowrap;">
                         @if($product->UrunResimPath)
                             <img src="{{ asset('storage/' . $product->UrunResimPath) }}" alt="{{ $product->UrunAd }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px;">
                         @else

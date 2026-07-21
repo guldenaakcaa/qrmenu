@@ -34,7 +34,7 @@
         .logo i { color: var(--primary); }
         
         /* Cart Icon */
-        .cart-icon-container { position: relative; }
+        .cart-icon-container { position: relative; display: none !important; }
         .cart-icon { font-size: 1.35rem; color: var(--text); transition: 0.2s; }
         .cart-badge { position: absolute; top: -6px; right: -8px; background: var(--primary); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: scale(0); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .cart-badge.active { transform: scale(1); }
@@ -115,15 +115,15 @@
         .flying-dot { position: fixed; width: 14px; height: 14px; background: var(--primary); border-radius: 50%; z-index: 1000; pointer-events: none; transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; }
         
         /* Floating Action Button */
-        .fab { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 0.85rem 1.5rem; border-radius: 30px; font-weight: 500; font-size: 0.95rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; z-index: 99; transition: 0.3s; width: max-content; }
+        .fab { position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%); background: var(--text); color: white; padding: 0.85rem 1.5rem; border-radius: 30px; font-weight: 500; font-size: 0.95rem; box-shadow: 0 10px 25px rgba(0,0,0,0.15); display: none !important; align-items: center; gap: 8px; z-index: 99; transition: 0.3s; width: max-content; }
         .fab span { font-weight: 700; background: rgba(255,255,255,0.2); padding: 2px 8px; border-radius: 12px; }
 
         /* Bottom Sheet (Modal) */
         .bottom-sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; backdrop-filter: blur(2px); }
         .bottom-sheet-overlay.active { opacity: 1; pointer-events: auto; }
         
-        .bottom-sheet { position: fixed; bottom: 0; left: 0; width: 100%; background: var(--surface); border-radius: 28px 28px 0 0; z-index: 1001; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1); max-height: 95vh; height: auto; display: flex; flex-direction: column; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); }
-        .bottom-sheet.active { transform: translateY(0); }
+        .bottom-sheet { position: fixed; bottom: 1rem; left: 50%; width: calc(100% - 2rem); max-width: 500px; background: var(--surface); border-radius: 28px; z-index: 1001; transform: translate(-50%, 150%); transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.3, 1); max-height: calc(100vh - 2rem); height: auto; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .bottom-sheet.active { transform: translate(-50%, 0); }
         
         .bs-header { padding: 1.25rem 1.25rem 0.5rem; text-align: center; position: relative; flex-shrink: 0; }
         .drag-handle { width: 44px; height: 5px; background: #e2e8f0; border-radius: 3px; margin: 0 auto 1rem; }
@@ -172,9 +172,27 @@
         .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 1.1rem; border-radius: 16px; font-size: 1.1rem; font-weight: 600; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3); }
         .btn-submit:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2); }
 
+        .bs-product-img { width: 100%; max-width: 250px; aspect-ratio: 1/1; object-fit: contain; margin-bottom: 16px; display: none; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15)); }
+
+        @media (max-width: 480px) {
+            .product-card { padding: 0.75rem; gap: 0.75rem; }
+            .product-img-wrapper { width: 80px; height: 80px; border-radius: 12px; }
+            .product-name { font-size: 0.95rem; }
+            .badge { padding: 2px 6px; font-size: 0.65rem; }
+            .product-desc { font-size: 0.8rem; }
+            .price-badge { font-size: 0.85rem; padding: 3px 8px; top: 0.75rem; right: 0.75rem; }
+            
+            .featured-card { flex: 0 0 140px; }
+            .featured-img-wrapper { height: 110px; }
+            
+            .bs-product-img { max-width: 180px; margin-bottom: 8px; }
+            .bs-title { font-size: 1.2rem; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- Intro Screen Removed -->
 
     <header>
         <div class="top-bar">
@@ -356,6 +374,11 @@
         @endforeach
     </main>
 
+    <!-- Subtle Branding -->
+    <div style="text-align: center; padding: 1rem; margin-bottom: 2rem; color: #cbd5e1; font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.7;">
+        <i class="fa-solid fa-bolt" style="color: #fcd34d; margin-right: 3px;"></i> Powered by <a href="#" style="font-weight: 600; color: #94a3b8; text-decoration: none;">Mikale Yazılım</a>
+    </div>
+
 
 
     <div class="fab" id="view-cart-btn" style="display: none;">
@@ -439,6 +462,13 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Sidebar Footer Branding -->
+        <div style="margin-top: auto; padding: 1rem; border-top: 1px solid var(--border); text-align: center; background: #f8fafc;">
+            <div style="font-size: 0.65rem; color: #94a3b8; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-bolt" style="color: #fcd34d;"></i>  <span style="font-weight: 600;">Mikale Yazılım</span>
+            </div>
+        </div>
     </div>
 
     <!-- Bottom Sheet Modal -->
@@ -446,7 +476,7 @@
     <div class="bottom-sheet" id="bottom-sheet">
         <div class="bs-header" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
             <div class="drag-handle"></div>
-            <img id="bs-product-img" src="" alt="" style="width: 280px; height: 280px; object-fit: contain; margin-bottom: 16px; display: none; filter: drop-shadow(0 10px 20px rgba(0,0,0,0.15));">
+            <img id="bs-product-img" src="" alt="" class="bs-product-img">
             <h3 class="bs-title" id="bs-product-name">Ürün Adı</h3>
             <p class="bs-desc" id="bs-product-desc" style="margin-bottom: 12px;">Ürün açıklaması</p>
             <div id="bs-info-chips" style="display: flex; gap: 8px; justify-content: flex-start; flex-wrap: wrap; margin-bottom: 8px;"></div>
@@ -455,6 +485,11 @@
         <div class="bs-content">
             <!-- Dinamik Seçenekler (JS ile doldurulacak) -->
             <div id="dynamic-options-container"></div>
+            
+            <!-- Bottom Sheet Branding -->
+            <div style="margin-top: 2rem; text-align: center; font-size: 0.65rem; color: #cbd5e1; letter-spacing: 0.5px;">
+                <i class="fa-solid fa-bolt" style="color: #fcd34d; opacity: 0.8;"></i> <span style="font-weight: 500;">Mikale Yazılım</span>
+            </div>
         </div>
 
         {{-- Sepete Ekle Butonu Geçici Olarak Kapatıldı
@@ -468,6 +503,8 @@
     </div>
 
     <script>
+
+
         let cartCount = 0;
         let cartTotal = 0;
         let isScrolling = false;

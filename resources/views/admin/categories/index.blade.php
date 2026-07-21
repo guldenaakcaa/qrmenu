@@ -15,7 +15,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Sıra No</th>
+                    <th style="width: 1%; white-space: nowrap;">Sıra No</th>
                     <th>Kategori Adı</th>
                     <th style="width: 150px;">İşlemler</th>
                 </tr>
@@ -23,7 +23,7 @@
             <tbody>
                 @foreach($categories as $category)
                 <tr>
-                    <td>{{ $category->Sirano }}</td>
+                    <td style="width: 1%; white-space: nowrap;">{{ $category->Sirano }}</td>
                     <td>{{ $category->Urungrubu }}</td>
                     <td>
                         <div class="action-btns">

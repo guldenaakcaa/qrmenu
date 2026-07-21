@@ -14,10 +14,13 @@ class UrunGrubu extends Model
     protected $table = 't_urungrubu';
 
     protected $fillable = [
+        'UrunGrubu_id',
         'Sirano',
         'Urungrubu',
         'Dil_id',
         'UrunGrubuResimPath',
         'AnaGrup'
     ];
-}
+}   
+
+

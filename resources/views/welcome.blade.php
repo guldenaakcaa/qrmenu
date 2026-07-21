@@ -27,22 +27,39 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        body {
+        html, body {
             min-height: 100vh;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            overflow: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -1;
+            @if($settings && $settings->karsilama_gorsel)
+                background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.25)), url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') no-repeat center center;
+                background-size: cover;
+            @else
+                background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            @endif
+        }
+        
+        body {
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             padding: 2rem 0;
-            @if($settings && $settings->karsilama_gorsel)
-                background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') no-repeat center center fixed;
-                background-size: cover;
-            @else
-                background: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
-            @endif
+            background: transparent;
             position: relative;
-            overflow-x: hidden;
-            overflow-y: auto;
+            overflow: hidden; /* Prevent all scrolling */
             color: var(--text-dark);
         }
 
@@ -87,27 +104,25 @@
             100% { transform: translate(30px, 30px) scale(1.1); }
         }
 
-        /* Glassmorphism Card */
+        /* Main Content Container */
         .glass-card {
-            background: rgba(255, 255, 255, 0.65);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            border-radius: 40px;
-            padding: 4rem 3.5rem;
-            width: 90%;
-            max-width: 600px;
+            background: transparent;
+            border: none;
+            padding: 2rem 1.5rem;
+            width: 95%;
+            max-width: 900px;
+            min-height: 75vh;
+            display: flex;
+            flex-direction: column;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255,255,255,0.5) inset;
             position: relative;
             z-index: 1;
             transform: translateY(0);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+            transition: transform 0.4s ease;
         }
 
         .glass-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.15), 0 0 20px rgba(255,255,255,0.6) inset;
         }
 
         /* Responsive */
@@ -152,45 +167,49 @@
         h1 {
             font-size: 3rem;
             font-weight: 700;
-            color: var(--text-dark);
+            color: #ffffff;
             margin-bottom: 0.5rem;
             letter-spacing: -0.5px;
+            text-shadow: 0 10px 25px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.6);
         }
 
         .subtitle {
             font-size: 1rem;
             font-weight: 600;
-            color: var(--accent-indigo);
+            color: rgba(255, 255, 255, 0.9);
             letter-spacing: 4px;
             text-transform: uppercase;
-            margin-bottom: 2rem;
+            margin-bottom: auto;
             display: block;
+            text-shadow: 0 8px 20px rgba(0,0,0,0.8);
         }
 
         .description {
-            font-size: 1.2rem;
-            color: var(--text-gray);
+            font-size: 1.25rem;
+            color: #ffffff;
             line-height: 1.6;
-            margin-bottom: 3rem;
-            font-weight: 300;
+            margin-bottom: 1rem;
+            font-weight: 400;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.8), 0 4px 8px rgba(0,0,0,0.6);
         }
 
         /* Button */
         .btn-menu {
-            display: flex;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
-            width: 100%;
-            padding: 1.4rem;
-            background: #0f172a; /* Dark navy/black */
-            color: white;
+            width: auto;
+            margin: 0 auto;
+            padding: 1rem 3rem;
+            background: transparent;
+            color: #ffffff;
+            border: none;
             text-decoration: none;
             border-radius: 20px;
             font-size: 1.25rem;
             font-weight: 600;
             transition: all 0.3s ease;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
             position: relative;
             overflow: hidden;
         }
@@ -202,13 +221,13 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: left 0.5s ease;
         }
 
         .btn-menu:hover {
-            background: #1e293b;
-            box-shadow: 0 15px 25px rgba(15, 23, 42, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
             transform: translateY(-2px);
         }
         
@@ -233,23 +252,35 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: var(--text-gray);
+            color: rgba(255, 255, 255, 0.6);
             text-decoration: none;
             font-size: 0.75rem;
             font-weight: 400;
-            opacity: 0.7;
-            transition: opacity 0.3s ease, color 0.3s ease;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
             z-index: 1;
         }
 
         .admin-link:hover {
-            opacity: 1;
-            color: var(--text-dark);
+            color: #ffffff;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 20px rgba(255, 255, 255, 0.3);
         }
 
         .admin-link svg {
             width: 12px;
             height: 12px;
+        }
+
+        .powered-by {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            pointer-events: none;
         }
     </style>
 </head>
@@ -262,13 +293,6 @@
 
     <!-- Main Card -->
     <div class="glass-card">
-        @if($settings && $settings->logo)
-            <img src="{{ asset('storage/' . $settings->logo) }}" alt="Logo" style="max-height: 100px; margin-bottom: 1.5rem; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
-        @else
-            <div class="logo-badge">
-                <span>{{ substr($settings->baslik ?? 'C', 0, 1) }}</span>
-            </div>
-        @endif
         
         <h1>{{ $settings && $settings->baslik ? $settings->baslik : 'Center Cafe' }}</h1>
         <span class="subtitle">{{ $settings && $settings->slogan ? $settings->slogan : 'DİJİTAL MENÜ' }}</span>
@@ -294,6 +318,9 @@
         </svg>
         Yönetim Paneli
     </a>
+
+    <!-- Powered By -->
+    <div class="powered-by">Powered by Mıkale Yazılım</div>
 
 </body>
 </html>

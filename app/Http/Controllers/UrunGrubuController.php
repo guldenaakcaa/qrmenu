@@ -22,10 +22,21 @@ class UrunGrubuController extends Controller
     {
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
-            'Sirano' => 'nullable|integer',
+            'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano',
+        ], [
+            'Sirano.unique' => 'Bu sıra numarası zaten başka bir kategoride kullanılıyor. Lütfen farklı bir numara girin.'
         ]);
 
-        UrunGrubu::create($request->all());
+        $data = $request->all();
+        
+        if (!isset($data['UrunGrubu_id'])) {
+            $data['UrunGrubu_id'] = (\App\Models\UrunGrubu::max('UrunGrubu_id') ?? 0) + 1;
+        }
+        if (!isset($data['AnaGrup'])) {
+            $data['AnaGrup'] = '';
+        }
+
+        UrunGrubu::create($data);
 
         return redirect()->route('categories.index')->with('success', 'Kategori başarıyla eklendi.');
     }
@@ -40,7 +51,9 @@ class UrunGrubuController extends Controller
     {
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
-            'Sirano' => 'nullable|integer',
+            'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano,' . $id,
+        ], [
+            'Sirano.unique' => 'Bu sıra numarası zaten başka bir kategoride kullanılıyor. Lütfen farklı bir numara girin.'
         ]);
 
         $category = UrunGrubu::findOrFail($id);

@@ -78,18 +78,24 @@ class AdminController extends Controller
         $data['menu_durumu'] = $request->has('menu_durumu') ? 1 : 0;
         $data['coklu_dil_aktif'] = $request->has('coklu_dil_aktif') ? 1 : 0;
 
-        // Handle File Uploads
-        if ($request->hasFile('logo')) {
+        // Handle File Uploads and Removals
+        if ($request->has('remove_logo')) {
+            $data['logo'] = null;
+        } elseif ($request->hasFile('logo')) {
             $path = $request->file('logo')->store('settings', 'public');
             $data['logo'] = $path;
         }
 
-        if ($request->hasFile('favicon')) {
+        if ($request->has('remove_favicon')) {
+            $data['favicon'] = null;
+        } elseif ($request->hasFile('favicon')) {
             $path = $request->file('favicon')->store('settings', 'public');
             $data['favicon'] = $path;
         }
 
-        if ($request->hasFile('karsilama_gorsel')) {
+        if ($request->has('remove_karsilama_gorsel')) {
+            $data['karsilama_gorsel'] = null;
+        } elseif ($request->hasFile('karsilama_gorsel')) {
             $path = $request->file('karsilama_gorsel')->store('settings', 'public');
             $data['karsilama_gorsel'] = $path;
         }

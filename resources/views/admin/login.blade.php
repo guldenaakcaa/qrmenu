@@ -28,15 +28,19 @@
             font-family: 'Outfit', sans-serif;
         }
 
-        body {
+        html, body {
             min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body {
             display: flex;
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, var(--bg-color-1) 0%, var(--bg-color-2) 100%);
             position: relative;
-            overflow: hidden;
+            overflow-y: auto;
             color: var(--text-dark);
+            padding: 1rem;
         }
 
         /* Decorative Background Blurs */
@@ -251,18 +255,42 @@
 
         /* Responsive */
         @media (max-width: 768px) {
+            .bg-blur {
+                display: none;
+            }
+            body {
+                padding: 1rem;
+            }
             .login-wrapper {
                 flex-direction: column;
-                max-width: 450px;
-                border-radius: 24px;
+                margin: 0 auto;
+                width: 100%;
+                max-width: 400px;
+                border-radius: 20px;
             }
             .login-left {
                 border-right: none;
                 border-bottom: 1px solid rgba(255, 255, 255, 0.6);
-                padding: 3rem 2rem;
+                padding: 2rem 1.5rem;
+            }
+            .logo-badge {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 1rem;
+            }
+            .logo-badge span {
+                font-size: 1.8rem;
+            }
+            .login-title {
+                font-size: 1.25rem;
+                margin-bottom: 1rem;
+            }
+            .warning-box {
+                margin-bottom: 1.5rem;
+                padding: 1rem;
             }
             .login-right {
-                padding: 2rem;
+                padding: 1.5rem;
             }
         }
     </style>
@@ -349,6 +377,11 @@
                 </button>
             </form>
         </div>
+    </div>
+
+    <!-- Subtle Branding -->
+    <div style="position: absolute; bottom: 15px; width: 100%; text-align: center; color: rgba(33, 37, 41, 0.4); font-size: 0.75rem; font-weight: 500; letter-spacing: 0.5px;">
+        Sistem Altyapısı: <span style="font-weight: 700; opacity: 0.8;">Mikale Yazılım</span>
     </div>
 
 </body>

@@ -40,8 +40,8 @@
         .nav-item i { width: 20px; text-align: center; font-size: 1.1rem; }
 
         /* Main Content */
-        .main-content { flex: 1; margin-left: 260px; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 1rem 2rem; border-radius: 12px; box-shadow: var(--card-shadow); }
+        .main-content { flex: 1; margin-left: 260px; padding: 2rem; display: flex; flex-direction: column; gap: 2rem; min-width: 0; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; background: var(--white); padding: 1rem 2rem; border-radius: 12px; box-shadow: var(--card-shadow); gap: 1rem; flex-wrap: wrap; }
         .top-header h1 { font-size: 1.25rem; font-weight: 600; margin: 0; }
         .user-profile { display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .user-avatar { width: 40px; height: 40px; border-radius: 50%; background-color: var(--primary-color); color: var(--white); display: flex; align-items: center; justify-content: center; font-weight: 600; }
@@ -55,10 +55,10 @@
         .btn-secondary:hover { background-color: #475569; }
 
         /* Tables */
-        .table-container { background: var(--white); border-radius: 12px; padding: 1.5rem; box-shadow: var(--card-shadow); }
-        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .table-container { background: var(--white); border-radius: 12px; padding: 1.5rem; box-shadow: var(--card-shadow); max-width: 100%; overflow: hidden; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
         .table-header h3 { font-size: 1.125rem; font-weight: 600; margin: 0; }
-        .table-responsive { overflow-x: auto; }
+        .table-responsive { overflow-x: auto; width: 100%; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
         th { color: var(--text-muted); font-weight: 500; font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -101,7 +101,10 @@
             .top-header { padding: 1rem; flex-wrap: wrap; }
             .top-header h1 { font-size: 1.1rem; }
             .card { padding: 1rem; }
-            .table-container { padding: 1rem; }
+            .table-container { padding: 0.75rem; }
+            th, td { padding: 0.75rem 0.5rem; font-size: 0.8rem; white-space: nowrap; }
+            th { font-size: 0.75rem; }
+            .action-btns { gap: 4px; }
         }
     </style>
 </head>
@@ -152,6 +155,10 @@
                 <i class="fa-solid fa-right-from-bracket"></i>
                 <span>Çıkış Yap</span>
             </a>
+            
+            <div style="padding: 1rem 1.5rem 0; text-align: center; font-size: 0.65rem; color: #475569; letter-spacing: 0.5px; opacity: 0.8;">
+                <i class="fa-solid fa-code" style="font-size: 0.55rem; margin-right: 2px;"></i> Mikale Yazılım
+            </div>
         </nav>
     </aside>
 
@@ -181,5 +188,73 @@
         
     </main>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form onsubmit interceptor
+            const forms = document.querySelectorAll('form[onsubmit*="confirm"]');
+            forms.forEach(form => {
+                const onsubmitStr = form.getAttribute('onsubmit');
+                const match = onsubmitStr.match(/confirm\(['"](.+?)['"]\)/);
+                const message = match ? match[1] : 'Bu işlemi yapmak istediğinize emin misiniz?';
+                
+                form.removeAttribute('onsubmit');
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Emin misiniz?',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Evet, Sil!',
+                        cancelButtonText: 'İptal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+
+            // Button onclick interceptor
+            const buttons = document.querySelectorAll('button[onclick*="confirm"], a[onclick*="confirm"]');
+            buttons.forEach(btn => {
+                const onclickStr = btn.getAttribute('onclick');
+                const match = onclickStr.match(/confirm\(['"](.+?)['"]\)/);
+                const message = match ? match[1] : 'Bu işlemi yapmak istediğinize emin misiniz?';
+                
+                btn.removeAttribute('onclick');
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Emin misiniz?',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Evet, Sil!',
+                        cancelButtonText: 'İptal'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            if (btn.type === 'submit' && btn.form) {
+                                const hiddenInput = document.createElement('input');
+                                hiddenInput.type = 'hidden';
+                                hiddenInput.name = btn.name;
+                                hiddenInput.value = btn.value;
+                                btn.form.appendChild(hiddenInput);
+                                btn.form.submit();
+                            } else if (btn.tagName === 'A' && btn.href) {
+                                window.location.href = btn.href;
+                            }
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

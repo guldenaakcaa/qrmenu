@@ -30,7 +30,7 @@
                     <th>ID</th>
                     <th>İSİM</th>
                     <th>E-POSTA ADRESİ</th>
-                    <th>DURUM</th>
+                    <th>ROL</th>
                     <th>İŞLEMLER</th>
                 </tr>
             </thead>
@@ -41,10 +41,10 @@
                         <td style="font-weight: 500;">{{ $admin->name }}</td>
                         <td>{{ $admin->email }}</td>
                         <td>
-                            @if(session('admin_id') == $admin->id)
-                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Şu an aktif</span>
+                            @if($admin->kullanicitipi == 0)
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Admin</span>
                             @else
-                                <span style="background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Yönetici</span>
+                                <span style="background: #f1f5f9; color: #475569; padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;">Garson (Personel)</span>
                             @endif
                         </td>
                         <td>
@@ -111,6 +111,13 @@
                 <input type="password" name="password" class="form-control" required minlength="6">
             </div>
             <div class="form-group">
+                <label>Yetki Seçiniz</label>
+                <select name="kullanicitipi" class="form-control" required>
+                    <option value="0">Admin (Tam Yetkili)</option>
+                    <option value="1">Garson (Sadece Okuma)</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>Şifre Tekrar</label>
                 <input type="password" name="password_confirmation" class="form-control" required minlength="6">
             </div>
@@ -141,6 +148,13 @@
                 <input type="email" name="email" id="editEmail" class="form-control" required>
             </div>
             <div class="form-group">
+                <label>Yetki Seçiniz</label>
+                <select name="kullanicitipi" id="editKullaniciTipi" class="form-control" required>
+                    <option value="0">Admin (Tam Yetkili)</option>
+                    <option value="1">Garson (Sadece Okuma)</option>
+                </select>
+            </div>
+            <div class="form-group">
                 <label>Yeni Şifre <small style="color:var(--text-muted); font-weight:normal;">(Değiştirmek istemiyorsanız boş bırakın)</small></label>
                 <input type="password" name="password" class="form-control" minlength="6">
             </div>
@@ -169,6 +183,7 @@
         document.getElementById('editAdminForm').action = '/admin/admins/' + admin.id;
         document.getElementById('editName').value = admin.name;
         document.getElementById('editEmail').value = admin.email;
+        document.getElementById('editKullaniciTipi').value = admin.kullanicitipi;
         openModal('editAdminModal');
     }
 

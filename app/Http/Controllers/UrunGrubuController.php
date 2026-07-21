@@ -15,11 +15,18 @@ class UrunGrubuController extends Controller
 
     public function create()
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
         return view('admin.categories.create');
     }
 
     public function store(Request $request)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
             'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano',
@@ -43,12 +50,19 @@ class UrunGrubuController extends Controller
 
     public function edit($id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
         $category = UrunGrubu::findOrFail($id);
         return view('admin.categories.edit', compact('category'));
     }
 
     public function update(Request $request, $id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
             'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano,' . $id,
@@ -64,6 +78,10 @@ class UrunGrubuController extends Controller
 
     public function destroy($id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $category = UrunGrubu::findOrFail($id);
         $category->delete();
 

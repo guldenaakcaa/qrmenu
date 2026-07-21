@@ -18,12 +18,19 @@ class UrunKartController extends Controller
 
     public function create()
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('products.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
         $categories = UrunGrubu::orderBy('Sirano')->get();
         return view('admin.products.create', compact('categories'));
     }
 
     public function store(Request $request)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('products.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $request->validate([
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
@@ -49,6 +56,9 @@ class UrunKartController extends Controller
 
     public function edit($id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('products.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
         $product = UrunKart::findOrFail($id);
         $categories = UrunGrubu::orderBy('Sirano')->get();
         return view('admin.products.edit', compact('product', 'categories'));
@@ -56,6 +66,10 @@ class UrunKartController extends Controller
 
     public function update(Request $request, $id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('products.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $request->validate([
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
@@ -88,6 +102,10 @@ class UrunKartController extends Controller
 
     public function destroy($id)
     {
+        if (session('admin_role') !== '0') {
+            return redirect()->route('products.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
+        }
+
         $product = UrunKart::findOrFail($id);
 
         // Ürün silinirken bağlı olduğu resmi de sunucudan fiziksel olarak sil
@@ -102,6 +120,10 @@ class UrunKartController extends Controller
 
     public function toggleFeatured($id)
     {
+        if (session('admin_role') !== '0') {
+            return response()->json(['success' => false, 'message' => 'Yetkisiz erişim.'], 403);
+        }
+
         $product = UrunKart::findOrFail($id);
         $product->one_cikan = !$product->one_cikan;
         $product->save();

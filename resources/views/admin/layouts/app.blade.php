@@ -136,6 +136,7 @@
                 <i class="fa-solid fa-expand"></i>
                 <span>QR Kodlar</span>
             </a>
+            @if(session('admin_role') == '0')
             <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
                 <i class="fa-solid fa-gear"></i>
                 <span>Ayarlar</span>
@@ -144,6 +145,7 @@
                 <i class="fa-solid fa-users"></i>
                 <span>Yöneticiler</span>
             </a>
+            @endif
             <a href="{{ route('home') }}" class="nav-item" style="margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.1);">
                 <i class="fa-solid fa-arrow-left"></i>
                 <span>Ana Sayfaya Dön</span>

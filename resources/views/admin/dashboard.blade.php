@@ -30,9 +30,11 @@
 <div class="table-container">
     <div class="table-header">
         <h3>Son Eklenen Ürünler</h3>
+        @if(session('admin_role') == '0')
         <a href="{{ route('products.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> Yeni Ürün
         </a>
+        @endif
     </div>
     <div class="table-responsive">
         <table>
@@ -42,7 +44,9 @@
                     <th>Kategori</th>
                     <th>Fiyat</th>
                     <th>Durum</th>
+                    @if(session('admin_role') == '0')
                     <th>İşlemler</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -52,6 +56,7 @@
                     <td>{{ $product->UrunGrubu }}</td>
                     <td>₺{{ number_format((float)$product->FixFiyat, 2) }}</td>
                     <td><span class="status active" style="padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background-color: #dcfce7; color: #166534;">Aktif</span></td>
+                    @if(session('admin_role') == '0')
                     <td>
                         <div class="action-btns">
                             <a href="{{ route('products.edit', $product->id) }}" class="btn-icon edit" title="Düzenle"><i class="fa-solid fa-pen-to-square"></i></a>
@@ -62,6 +67,7 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @empty
                 <tr>

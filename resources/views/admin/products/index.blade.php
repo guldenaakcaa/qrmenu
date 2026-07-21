@@ -13,9 +13,11 @@
             <input type="text" id="adminProductSearch" onkeyup="filterAdminProducts()" placeholder="Ürün adı ile ara..." style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none;">
         </div>
 
+        @if(session('admin_role') == '0')
         <a href="{{ route('products.create') }}" class="btn btn-primary" style="white-space: nowrap;">
             <i class="fa-solid fa-plus"></i> Yeni Ürün
         </a>
+        @endif
     </div>
     <div class="table-responsive">
         <table>
@@ -25,8 +27,10 @@
                     <th>Ürün Adı</th>
                     <th>Kategori</th>
                     <th>Fiyat</th>
+                    @if(session('admin_role') == '0')
                     <th style="text-align: center;">Öne Çıkan</th>
                     <th style="width: 150px;">İşlemler</th>
+                    @endif
                 </tr>
             </thead>
             <tbody id="adminProductsTableBody">
@@ -44,12 +48,15 @@
                     <td>{{ $product->UrunAd }}</td>
                     <td>{{ isset($categories[$product->UrunGrubu_id]) ? $categories[$product->UrunGrubu_id]->Urungrubu : 'Kategori Yok' }}</td>
                     <td>₺{{ number_format((float)$product->FixFiyat, 2) }}</td>
+                    @if(session('admin_role') == '0')
                     <td style="text-align: center;">
                         <label class="switch">
                             <input type="checkbox" onchange="toggleFeatured({{ $product->id }}, this)" {{ $product->one_cikan ? 'checked' : '' }}>
                             <span class="slider round"></span>
                         </label>
                     </td>
+                    @endif
+                    @if(session('admin_role') == '0')
                     <td>
                         <div class="action-btns">
                             <a href="{{ route('products.edit', $product->id) }}" class="btn-icon edit" title="Düzenle">
@@ -64,6 +71,7 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @endforeach
                 @if($products->count() == 0)

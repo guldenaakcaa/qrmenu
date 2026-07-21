@@ -7,9 +7,11 @@
 <div class="table-container">
     <div class="table-header">
         <h3>Kategori Listesi</h3>
+        @if(session('admin_role') == '0')
         <a href="{{ route('categories.create') }}" class="btn btn-primary">
             <i class="fa-solid fa-plus"></i> Yeni Kategori
         </a>
+        @endif
     </div>
     <div class="table-responsive">
         <table>
@@ -17,7 +19,9 @@
                 <tr>
                     <th style="width: 1%; white-space: nowrap;">Sıra No</th>
                     <th>Kategori Adı</th>
+                    @if(session('admin_role') == '0')
                     <th style="width: 150px;">İşlemler</th>
+                    @endif
                 </tr>
             </thead>
             <tbody>
@@ -25,6 +29,7 @@
                 <tr>
                     <td style="width: 1%; white-space: nowrap;">{{ $category->Sirano }}</td>
                     <td>{{ $category->Urungrubu }}</td>
+                    @if(session('admin_role') == '0')
                     <td>
                         <div class="action-btns">
                             <a href="{{ route('categories.edit', $category->id) }}" class="btn-icon edit" title="Düzenle">
@@ -39,6 +44,7 @@
                             </form>
                         </div>
                     </td>
+                    @endif
                 </tr>
                 @endforeach
                 @if($categories->count() == 0)

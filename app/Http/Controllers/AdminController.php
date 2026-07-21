@@ -28,7 +28,8 @@ class AdminController extends Controller
                 'admin_logged_in' => true,
                 'admin_id' => $user->id,
                 'admin_name' => $user->name,
-                'admin_email' => $user->email
+                'admin_email' => $user->email,
+                'admin_role' => (string) $user->kullanicitipi
             ]);
             return redirect()->route('admin.dashboard')->with('success', 'Başarıyla giriş yapıldı.');
         }
@@ -40,7 +41,7 @@ class AdminController extends Controller
 
     public function logout()
     {
-        session()->forget(['admin_logged_in', 'admin_id', 'admin_name', 'admin_email']);
+        session()->forget(['admin_logged_in', 'admin_id', 'admin_name', 'admin_email', 'admin_role']);
         return redirect()->route('admin.login');
     }
 
@@ -61,6 +62,7 @@ class AdminController extends Controller
 
     public function settings()
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $settings = \App\Models\Ayar::first();
         if (!$settings) {
             $settings = new \App\Models\Ayar();
@@ -71,6 +73,7 @@ class AdminController extends Controller
 
     public function updateSettings(Request $request)
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $settings = \App\Models\Ayar::first();
 
         // Checkbox values (since unchecked checkboxes aren't sent)
@@ -132,24 +135,29 @@ class AdminController extends Controller
     // Admin Management Methods
     public function admins()
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $admins = \Illuminate\Support\Facades\DB::table('users')->orderBy('id', 'asc')->get();
         return view('admin.admins.index', compact('admins'));
     }
 
     public function storeAdmin(Request $request)
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed'
         ]);
 
+        $maxId = \Illuminate\Support\Facades\DB::table('users')->max('id_kullanici') ?? 0;
+        
         \Illuminate\Support\Facades\DB::table('users')->insert([
+            'id_kullanici' => $maxId + 1,
             'name' => $request->name,
             'email' => $request->email,
             'password' => bcrypt($request->password),
             'yetki' => 'tahsilat|odeme|satisrapor',
-            'kullanicitipi' => 1,
+            'kullanicitipi' => $request->kullanicitipi ?? 0,
             'subeyetki' => '1',
             'created_at' => now(),
             'updated_at' => now()
@@ -160,6 +168,7 @@ class AdminController extends Controller
 
     public function updateAdmin(Request $request, $id)
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
@@ -169,6 +178,7 @@ class AdminController extends Controller
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'kullanicitipi' => $request->has('kullanicitipi') ? $request->kullanicitipi : 0,
             'updated_at' => now()
         ];
 
@@ -188,6 +198,7 @@ class AdminController extends Controller
 
     public function destroyAdmin($id)
     {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         if (session('admin_id') == $id) {
             return back()->withErrors(['Hata' => 'Kendi hesabınızı silemezsiniz.']);
         }

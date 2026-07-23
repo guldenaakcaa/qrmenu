@@ -132,6 +132,10 @@
                 <i class="fa-solid fa-burger"></i>
                 <span>Ürünler</span>
             </a>
+            <a href="{{ route('admin.masalar') }}" class="nav-item {{ request()->routeIs('admin.masalar') ? 'active' : '' }}">
+                <i class="fa-solid fa-utensils"></i>
+                <span>Masalar & Kasa</span>
+            </a>
             <a href="{{ route('admin.qr') }}" class="nav-item {{ request()->routeIs('admin.qr') ? 'active' : '' }}">
                 <i class="fa-solid fa-expand"></i>
                 <span>QR Kodlar</span>

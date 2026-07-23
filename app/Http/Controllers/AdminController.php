@@ -60,6 +60,14 @@ class AdminController extends Controller
         return view('admin.qr-studio', compact('settings'));
     }
 
+    public function masalar()
+    {
+        $masalar = \App\Models\Masa::all();
+        $gunluk_kasa = \App\Models\Kasa::where('tarih', date('Y-m-d'))->first();
+        
+        return view('admin.masalar.index', compact('masalar', 'gunluk_kasa'));
+    }
+
     public function settings()
     {
         if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');

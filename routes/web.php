@@ -44,6 +44,7 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     Route::post('/settings/update', [AdminController::class, 'updateSettings'])->name('admin.settings.update');
     Route::post('/settings/password', [AdminController::class, 'updatePassword'])->name('admin.settings.password');
     Route::get('/qr-studio', [AdminController::class, 'qrStudio'])->name('admin.qr');
+    Route::get('/masalar', [AdminController::class, 'masalar'])->name('admin.masalar');
     Route::get('/admins', [AdminController::class, 'admins'])->name('admin.admins');
     Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admin.admins.store');
     Route::put('/admins/{id}', [AdminController::class, 'updateAdmin'])->name('admin.admins.update');
@@ -113,4 +114,3 @@ Route::get('/gorsel', function () {
     
     return " Protokolü Tamamlandı: $bulunan adet fiziksel dosya zorla bağlandı. Bulunamayan $bulunamayan ürün boş bırakıldı.";
 });
-  

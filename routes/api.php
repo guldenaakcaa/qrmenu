@@ -33,7 +33,7 @@ Route::prefix('v1')->group(function () {
 
     Route::post('call/waiter/{qrcode}', [APIController::class, 'AddWaiterCallToTable']);
 
-    // Masaüstü (ve İleride Mobil) Senkronizasyon Uçları
+   
     Route::post('desktop/sync/tables', [\App\Http\Controllers\Api\DesktopSyncController::class, 'syncTables']);
     Route::post('desktop/sync/kasa', [\App\Http\Controllers\Api\DesktopSyncController::class, 'syncKasa']);
     Route::get('desktop/status', [\App\Http\Controllers\Api\DesktopSyncController::class, 'getStatus']);

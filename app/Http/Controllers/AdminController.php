@@ -60,12 +60,17 @@ class AdminController extends Controller
         return view('admin.qr-studio', compact('settings'));
     }
 
-    public function masalar()
+    public function masalar(\Illuminate\Http\Request $request)
     {
+        $seciliTarih = $request->get('tarih', date('Y-m-d'));
+
         $masalar = \App\Models\Masa::all();
-        $gunluk_kasa = \App\Models\Kasa::where('tarih', date('Y-m-d'))->first();
+        $masa_siparisleri = \App\Models\MasaSiparis::all()->groupBy('masa_isim');
+
+        $gunluk_kasa = \App\Models\Kasa::where('tarih', $seciliTarih)->first();
+        $kasa_islemleri = \App\Models\KasaIslem::where('tarih', $seciliTarih)->orderBy('islem_saati', 'desc')->get();
         
-        return view('admin.masalar.index', compact('masalar', 'gunluk_kasa'));
+        return view('admin.masalar.index', compact('masalar', 'masa_siparisleri', 'gunluk_kasa', 'kasa_islemleri', 'seciliTarih'));
     }
 
     public function settings()

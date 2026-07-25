@@ -11,6 +11,45 @@ use Illuminate\Support\Facades\DB;
 class DesktopSyncController extends Controller
 {
     /**
+     * Masaüstü uygulaması için API Login
+     */
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        $user = \Illuminate\Support\Facades\DB::table('users')->where('email', $request->email)->first();
+
+        if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+            // Token üret
+            $token = \Illuminate\Support\Str::random(60);
+
+            // Veritabanına kaydet
+            \Illuminate\Support\Facades\DB::table('users')
+                ->where('id', $user->id)
+                ->update(['api_token' => $token]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Giriş başarılı.',
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Giriş bilgileri hatalı.'
+        ], 401);
+    }
+
+    /**
      * Masaüstü uygulamasından masaların güncel durumunu alır.
      * Beklenen JSON formatı:
      * {

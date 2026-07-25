@@ -114,3 +114,13 @@ Route::get('/gorsel', function () {
     
     return " Protokolü Tamamlandı: $bulunan adet fiziksel dosya zorla bağlandı. Bulunamayan $bulunamayan ürün boş bırakıldı.";
 });
+
+Route::get('/add-api-token-col', function () {
+    if (!\Illuminate\Support\Facades\Schema::hasColumn('users', 'api_token')) {
+        \Illuminate\Support\Facades\Schema::table('users', function (\Illuminate\Database\Schema\Blueprint $table) {
+            $table->string('api_token', 80)->unique()->nullable()->default(null)->after('password');
+        });
+        return 'Column added.';
+    }
+    return 'Column already exists.';
+});

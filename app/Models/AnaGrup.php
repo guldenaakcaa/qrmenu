@@ -9,6 +9,8 @@ class AnaGrup extends Model
 {
     use HasFactory;
 
+    public $timestamps = false;
+
     protected $table = 't_anagrup';
     protected $fillable = [
         'id',

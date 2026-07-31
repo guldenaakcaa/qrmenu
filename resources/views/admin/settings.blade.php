@@ -14,6 +14,8 @@
         </h3>
         <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            <!-- Enter tuşuna basıldığında yanlışlıkla "Sil" butonlarının çalışmasını engellemek için gizli varsayılan submit -->
+            <button type="submit" style="display: none;" aria-hidden="true"></button>
             
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                 <div class="form-group">
@@ -76,6 +78,11 @@
                     <input type="url" name="google_map_url" class="form-control" value="{{ $settings->google_map_url }}">
                 </div>
 
+                <div class="form-group">
+                    <label>Google Yorum Linki</label>
+                    <input type="url" name="google_review_url" class="form-control" value="{{ $settings->google_review_url }}" placeholder="Örn: https://g.page/r/...">
+                </div>
+
                 <div class="form-group" style="grid-column: 1 / -1;">
                     <label>Açık Adres</label>
                     <textarea name="adres" class="form-control" rows="3">{{ $settings->adres }}</textarea>
@@ -107,6 +114,7 @@
         </h3>
         <form action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
             @csrf
+            <button type="submit" style="display: none;" aria-hidden="true"></button>
             <div class="form-group">
                 <label>Karşılama Ekranı Arka Plan Görseli</label>
                 <input type="file" name="karsilama_gorsel" class="form-control" accept="image/*">

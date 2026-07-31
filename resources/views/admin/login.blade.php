@@ -86,10 +86,10 @@
 
         .login-wrapper {
             display: flex;
+            flex-direction: column;
             width: 100%;
-            max-width: 900px;
-            min-height: 500px;
-            margin: 2rem;
+            max-width: 450px;
+            margin: 3rem auto;
             border-radius: 32px;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1), 0 0 20px rgba(255,255,255,0.5) inset;
             background: rgba(255, 255, 255, 0.65);
@@ -101,16 +101,13 @@
             overflow: hidden;
         }
 
-        /* Left Side */
+        /* Left Side (Now Top) */
         .login-left {
-            flex: 1.2;
-            background: rgba(255, 255, 255, 0.4);
-            border-right: 1px solid rgba(255, 255, 255, 0.6);
-            padding: 4rem 3rem;
+            padding: 3rem 3rem 1rem;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
             text-align: center;
         }
 
@@ -172,10 +169,9 @@
             font-weight: 500;
         }
 
-        /* Right Side */
+        /* Right Side (Now Bottom) */
         .login-right {
-            flex: 1;
-            padding: 4rem 3rem;
+            padding: 1rem 3rem 3rem;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -310,22 +306,7 @@
             </div>
             <h1 class="login-title">YÖNETİM PANELİ</h1>
             
-            <div class="warning-box">
-                <div class="warning-title">Bu sayfa sadece adminler içindir!</div>
-                <div class="warning-text">Yetkisiz kişilerin bu panele girişi yasaktır.</div>
-            </div>
-
-            <div class="info-text">Lütfen yönetici bilgilerinizi girin</div>
-            
-            <div style="margin-top: 2rem;">
-                <a href="{{ route('home') }}" style="color: var(--text-gray); text-decoration: none; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 5px; transition: color 0.3s ease;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="19" y1="12" x2="5" y2="12"></line>
-                        <polyline points="12 19 5 12 12 5"></polyline>
-                    </svg>
-                    Ana Sayfaya Dön
-                </a>
-            </div>
+            <div class="info-text" style="margin-top: 1rem;">Lütfen yönetici bilgilerinizi girin</div>
         </div>
 
         <!-- Right Side: Login Form -->
@@ -337,7 +318,7 @@
             @endif
 
             <!-- Form Başlangıcı -->
-            <form method="POST" action="{{ route('admin.authenticate') }}" class="w-full flex flex-col gap-4 mt-6">
+            <form method="POST" action="{{ route('admin.authenticate') }}" class="w-full flex flex-col gap-4 mt-2">
                 @csrf <!-- Laravel'in zorunlu güvenlik önlemi -->
 
                 <!-- E-posta Kutucuğu -->
@@ -376,6 +357,16 @@
                     Giriş Yap
                 </button>
             </form>
+
+            <div style="margin-top: 2rem; text-align: center;">
+                <a href="{{ route('home') }}" style="color: var(--text-gray); text-decoration: none; font-size: 0.95rem; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: color 0.3s ease;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="19" y1="12" x2="5" y2="12"></line>
+                        <polyline points="12 19 5 12 12 5"></polyline>
+                    </svg>
+                    Ana Sayfaya Dön
+                </a>
+            </div>
         </div>
     </div>
 

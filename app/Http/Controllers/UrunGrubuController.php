@@ -10,7 +10,8 @@ class UrunGrubuController extends Controller
     public function index()
     {
         $categories = UrunGrubu::orderBy('Sirano')->get();
-        return view('admin.categories.index', compact('categories'));
+        $categoriesByMain = $categories->groupBy('AnaGrup');
+        return view('admin.categories.index', compact('categories', 'categoriesByMain'));
     }
 
     public function create()
@@ -18,7 +19,8 @@ class UrunGrubuController extends Controller
         if (session('admin_role') !== '0') {
             return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
         }
-        return view('admin.categories.create');
+        $mainCategories = \App\Models\AnaGrup::orderBy('siraNo')->get();
+        return view('admin.categories.create', compact('mainCategories'));
     }
 
     public function store(Request $request)
@@ -29,13 +31,15 @@ class UrunGrubuController extends Controller
 
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
-            'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano',
-        ], [
-            'Sirano.unique' => 'Bu sıra numarası zaten başka bir kategoride kullanılıyor. Lütfen farklı bir numara girin.'
+            'Sirano' => 'nullable|integer',
         ]);
 
         $data = $request->all();
         
+        if (empty($data['Sirano'])) {
+            $data['Sirano'] = (\App\Models\UrunGrubu::max('Sirano') ?? 0) + 1;
+        }
+
         if (!isset($data['UrunGrubu_id'])) {
             $data['UrunGrubu_id'] = (\App\Models\UrunGrubu::max('UrunGrubu_id') ?? 0) + 1;
         }
@@ -54,7 +58,8 @@ class UrunGrubuController extends Controller
             return redirect()->route('categories.index')->with('error', 'Bu işlem için yetkiniz bulunmamaktadır.');
         }
         $category = UrunGrubu::findOrFail($id);
-        return view('admin.categories.edit', compact('category'));
+        $mainCategories = \App\Models\AnaGrup::orderBy('siraNo')->get();
+        return view('admin.categories.edit', compact('category', 'mainCategories'));
     }
 
     public function update(Request $request, $id)
@@ -65,13 +70,15 @@ class UrunGrubuController extends Controller
 
         $request->validate([
             'Urungrubu' => 'required|string|max:255',
-            'Sirano' => 'nullable|integer|unique:t_urungrubu,Sirano,' . $id,
-        ], [
-            'Sirano.unique' => 'Bu sıra numarası zaten başka bir kategoride kullanılıyor. Lütfen farklı bir numara girin.'
+            'Sirano' => 'nullable|integer',
         ]);
 
         $category = UrunGrubu::findOrFail($id);
-        $category->update($request->all());
+        $data = $request->all();
+        if (empty($data['Sirano'])) {
+            $data['Sirano'] = $category->Sirano;
+        }
+        $category->update($data);
 
         return redirect()->route('categories.index')->with('success', 'Kategori başarıyla güncellendi.');
     }

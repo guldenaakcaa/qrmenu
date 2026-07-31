@@ -66,11 +66,137 @@ class AdminController extends Controller
 
         $masalar = \App\Models\Masa::all();
         $masa_siparisleri = \App\Models\MasaSiparis::all()->groupBy('masa_isim');
+        
+        // QR kodları masalara göre al
+        $qrCodes = \App\Models\QrCodeKart::whereIn('Masa_id', $masalar->pluck('id'))->get()->keyBy('Masa_id');
 
         $gunluk_kasa = \App\Models\Kasa::where('tarih', $seciliTarih)->first();
         $kasa_islemleri = \App\Models\KasaIslem::where('tarih', $seciliTarih)->orderBy('islem_saati', 'desc')->get();
         
-        return view('admin.masalar.index', compact('masalar', 'masa_siparisleri', 'gunluk_kasa', 'kasa_islemleri', 'seciliTarih'));
+        return view('admin.masalar.index', compact('masalar', 'masa_siparisleri', 'gunluk_kasa', 'kasa_islemleri', 'seciliTarih', 'qrCodes'));
+    }
+
+    public function storeMasa(\Illuminate\Http\Request $request)
+    {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
+        
+        $request->validate([
+            'isim' => 'required|string|max:191'
+        ]);
+
+        $masa = \App\Models\Masa::create([
+            'isim' => $request->isim,
+            'durum' => 0,
+            'guncel_tutar' => 0
+        ]);
+
+        $slugBase = \Illuminate\Support\Str::slug($request->isim);
+        if (empty($slugBase)) {
+            $slugBase = 'masa';
+        }
+        
+        $qrCode = $slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4));
+        while(\App\Models\QrCodeKart::where('QRCode', $qrCode)->exists()){
+            $qrCode = $slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4));
+        }
+
+        \App\Models\QrCodeKart::create([
+            'QRCode' => $qrCode,
+            'Cari_id' => 1,
+            'QRTur' => 1,
+            'KullaniciParola' => '',
+            'Masa_id' => $masa->id,
+            'Masaismi' => $masa->isim,
+            'MusteriAd' => '',
+            'KullaniciAd' => '',
+            'Personel_id' => 0,
+            'Status' => 1
+        ]);
+
+        return back()->with('success', 'Masa başarıyla eklendi ve karekodu oluşturuldu.');
+    }
+
+    public function updateMasa(\Illuminate\Http\Request $request, $id)
+    {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
+        
+        $request->validate([
+            'isim' => 'required|string|max:191'
+        ]);
+
+        $masa = \App\Models\Masa::findOrFail($id);
+        $eskiIsim = $masa->isim;
+        $masa->update(['isim' => $request->isim]);
+
+        // İlişkili tabloları güncelle
+        \App\Models\QrCodeKart::where('Masa_id', $id)->update(['Masaismi' => $request->isim]);
+        \App\Models\MasaSiparis::where('masa_isim', $eskiIsim)->update(['masa_isim' => $request->isim]);
+
+        return back()->with('success', 'Masa ismi başarıyla güncellendi.');
+    }
+
+    public function destroyMasa($id)
+    {
+        if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
+        
+        $masa = \App\Models\Masa::findOrFail($id);
+        
+        // Siparişleri sil
+        \App\Models\MasaSiparis::where('masa_isim', $masa->isim)->delete();
+        // QrCodeKart kaydını sil
+        \App\Models\QrCodeKart::where('Masa_id', $id)->delete();
+        // Masayı sil
+        $masa->delete();
+
+        return back()->with('success', 'Masa ve tüm ilişkili kayıtlar başarıyla silindi.');
+    }
+
+    public function checkoutMasa(\Illuminate\Http\Request $request, $id)
+    {
+        $request->validate([
+            'odeme_turu' => 'required|in:Nakit,Kredi Kartı'
+        ]);
+
+        $masa = \App\Models\Masa::findOrFail($id);
+        $tutar = $masa->guncel_tutar > 0 ? $masa->guncel_tutar : \App\Models\MasaSiparis::where('masa_isim', $masa->isim)->sum(\Illuminate\Support\Facades\DB::raw('fiyat * adet'));
+
+        if ($tutar > 0) {
+            $bugun = date('Y-m-d');
+            $kasa = \App\Models\Kasa::where('tarih', $bugun)->first();
+            
+            if (!$kasa) {
+                $kasa = \App\Models\Kasa::create([
+                    'tarih' => $bugun,
+                    'nakit_toplam' => 0,
+                    'kredi_karti_toplam' => 0,
+                    'genel_toplam' => 0
+                ]);
+            }
+
+            if ($request->odeme_turu == 'Nakit') {
+                $kasa->increment('nakit_toplam', $tutar);
+            } else {
+                $kasa->increment('kredi_karti_toplam', $tutar);
+            }
+            $kasa->increment('genel_toplam', $tutar);
+
+            \App\Models\KasaIslem::create([
+                'tarih' => $bugun,
+                'islem_saati' => date('H:i:s'),
+                'turu' => $request->odeme_turu,
+                'tutar' => $tutar,
+                'aciklama' => $masa->isim . ' hesabı kapatıldı'
+            ]);
+        }
+
+        // Masayı sıfırla
+        \App\Models\MasaSiparis::where('masa_isim', $masa->isim)->delete();
+        $masa->update([
+            'durum' => 0,
+            'guncel_tutar' => 0
+        ]);
+
+        return back()->with('success', 'Ödeme başarıyla alındı ve masa sıfırlandı.');
     }
 
     public function settings()
@@ -89,10 +215,14 @@ class AdminController extends Controller
         if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');
         $settings = \App\Models\Ayar::first();
 
-        // Checkbox values (since unchecked checkboxes aren't sent)
-        $data = $request->except(['_token', 'logo', 'favicon', 'karsilama_gorsel']);
-        $data['menu_durumu'] = $request->has('menu_durumu') ? 1 : 0;
-        $data['coklu_dil_aktif'] = $request->has('coklu_dil_aktif') ? 1 : 0;
+        // Form 1 gönderilmişse baslik alanını doğrula
+        if (array_key_exists('baslik', $request->all())) {
+            $request->validate([
+                'baslik' => 'nullable|string|max:255'
+            ]);
+        }
+
+        $data = $request->except(['_token', 'logo', 'favicon', 'karsilama_gorsel', 'remove_logo', 'remove_favicon', 'remove_karsilama_gorsel']);
 
         // Handle File Uploads and Removals
         if ($request->has('remove_logo')) {

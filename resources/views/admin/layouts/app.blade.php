@@ -128,6 +128,10 @@
                 <i class="fa-solid fa-layer-group"></i>
                 <span>Kategoriler</span>
             </a>
+            <a href="{{ route('main-categories.index') }}" class="nav-item {{ request()->routeIs('main-categories.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-folder-tree"></i>
+                <span>Ana Gruplar</span>
+            </a>
             <a href="{{ route('products.index') }}" class="nav-item {{ request()->routeIs('products.*') ? 'active' : '' }}">
                 <i class="fa-solid fa-burger"></i>
                 <span>Ürünler</span>
@@ -187,6 +191,16 @@
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
+            </div>
+        @endif
+
+        @if($errors->any())
+            <div class="alert alert-danger" style="background-color: #fef2f2; color: #991b1b; border: 1px solid #fecaca; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
             </div>
         @endif
 

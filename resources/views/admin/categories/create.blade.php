@@ -9,12 +9,22 @@
         @csrf
         
         <div class="form-group">
+            <label for="AnaGrup">Bağlı Olduğu Ana Grup</label>
+            <select id="AnaGrup" name="AnaGrup" class="form-control">
+                <option value="">-- Bağımsız / Ana Grup Yok --</option>
+                @foreach($mainCategories as $mg)
+                    <option value="{{ $mg->anaGrup }}">{{ $mg->anaGrup }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <div class="form-group">
             <label for="Urungrubu">Kategori Adı</label>
             <input type="text" id="Urungrubu" name="Urungrubu" class="form-control" required placeholder="Örn: Tatlılar">
         </div>
         
         <div class="form-group">
-            <label for="Sirano">Sıra No</label>
+            <label for="Sirano">Sıra No (İsteğe Bağlı)</label>
             <input type="number" id="Sirano" name="Sirano" class="form-control" placeholder="Örn: 1" value="{{ old('Sirano') }}">
             @error('Sirano')
                 <span style="color: #e11d48; font-size: 0.85rem; margin-top: 5px; display: block;">{{ $message }}</span>

@@ -19,15 +19,14 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\MenuController;
 
-// Eski Ana Sayfa
-Route::get('/', function () {
-    $settings = \App\Models\Ayar::first();
-    return view('welcome', compact('settings'));
-})->name('home');
-Route::get('/{qrcode}', [MainController::class, 'index'])->where('qrcode', '[0-9]+')->name('homepage.qr');
+Route::get('/', [MenuController::class, 'index'])->name('home');
+Route::get('/{qrcode}', [MenuController::class, 'index'])->where('qrcode', '[0-9]+')->name('homepage.qr');
+Route::get('/masa/{qrcode}', [MenuController::class, 'index'])->name('homepage.qr.slug');
 
 // Yeni Modern QR Menü
 Route::get('/menu', [MenuController::class, 'index'])->name('menu');
+Route::get('/arama', [MenuController::class, 'search'])->name('menu.search');
+Route::get('/menu/{mainCategory}', [MenuController::class, 'show'])->name('menu.show');
 
 Route::redirect('/index.php', '/');
 Route::get('/product/{id}', [MainController::class, 'showproduct'])->name('product');
@@ -45,11 +44,16 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     Route::post('/settings/password', [AdminController::class, 'updatePassword'])->name('admin.settings.password');
     Route::get('/qr-studio', [AdminController::class, 'qrStudio'])->name('admin.qr');
     Route::get('/masalar', [AdminController::class, 'masalar'])->name('admin.masalar');
+    Route::post('/masalar', [AdminController::class, 'storeMasa'])->name('admin.masalar.store');
+    Route::put('/masalar/{id}', [AdminController::class, 'updateMasa'])->name('admin.masalar.update');
+    Route::delete('/masalar/{id}', [AdminController::class, 'destroyMasa'])->name('admin.masalar.destroy');
+    Route::post('/masalar/{id}/checkout', [AdminController::class, 'checkoutMasa'])->name('admin.masalar.checkout');
     Route::get('/admins', [AdminController::class, 'admins'])->name('admin.admins');
     Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admin.admins.store');
     Route::put('/admins/{id}', [AdminController::class, 'updateAdmin'])->name('admin.admins.update');
     Route::delete('/admins/{id}', [AdminController::class, 'destroyAdmin'])->name('admin.admins.destroy');
     Route::post('/products/{id}/toggle-featured', [UrunKartController::class, 'toggleFeatured'])->name('products.toggle_featured');
+    Route::resource('main-categories', \App\Http\Controllers\AnaGrupController::class);
     Route::resource('categories', UrunGrubuController::class);
     Route::resource('products', UrunKartController::class);
 });

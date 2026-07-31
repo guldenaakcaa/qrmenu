@@ -25,10 +25,57 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Outfit', sans-serif; background-color: var(--bg); color: var(--text); padding-bottom: 80px; }
+        
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            color: var(--text); 
+            padding-bottom: 70px; /* Space for bottom nav */
+            position: relative;
+        }
+
+        /* Arka Plan Görseli */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            @if($settings && $settings->karsilama_gorsel)
+                background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') center/cover no-repeat;
+            @else
+                background: linear-gradient(135deg, #f0f8ff 0%, #f0fff4 100%);
+            @endif
+        }
+
+        /* Silikleştirme / Beyazlatma Efekti (Eski Haline Döndü) */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            @if($settings && $settings->karsilama_gorsel)
+                background: rgba(244, 249, 249, 0.88); 
+                backdrop-filter: blur(8px); 
+                -webkit-backdrop-filter: blur(8px);
+            @else
+                background: transparent;
+            @endif
+        }
 
         /* Header & Sticky Categories */
-        header { background: var(--surface); position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
+        header { 
+            position: relative;
+            background: rgba(244, 249, 249, 0.75); 
+            z-index: 99; 
+            padding-bottom: 0.5rem; 
+        }
+        .sticky-top-container {
+            position: sticky; top: 0;
+            background: rgba(244, 249, 249, 0.95); 
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03); 
+        }
         .top-bar { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.25rem; }
         .logo { font-size: 1.25rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
         .logo i { color: var(--primary); }
@@ -39,24 +86,80 @@
         .cart-badge { position: absolute; top: -6px; right: -8px; background: var(--primary); color: white; font-size: 0.65rem; font-weight: 700; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transform: scale(0); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .cart-badge.active { transform: scale(1); }
 
-        .categories { display: flex; overflow-x: auto; padding: 1rem 1.25rem; gap: 1.25rem; scrollbar-width: none; scroll-behavior: smooth; border-top: 1px solid var(--border); }
-        .categories::-webkit-scrollbar { display: none; }
-        .category-item { display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; min-width: max-content; }
-        .category-circle { width: 56px; height: 56px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; transition: 0.3s; background: var(--surface); }
-        .category-circle i { font-size: 1.4rem; color: #94a3b8; transition: 0.3s; }
-        .category-name { font-size: 0.8rem; font-weight: 600; color: #64748b; transition: 0.3s; }
-        .category-item.active .category-circle { border-color: var(--primary); box-shadow: 0 4px 10px rgba(255,107,107,0.2); }
-        .category-item.active .category-circle i { color: var(--primary); }
-        .category-item.active .category-name { color: var(--text); }
+        /* Top Nav Bar (Masaüstü Sol Üst) */
+        .top-nav-bar {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1.5rem;
+            padding: 1rem 1.25rem 0;
+            background: transparent;
+        }
+        .top-nav-bar a {
+            color: #4b5563;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .top-nav-bar a:hover { color: var(--primary); }
+
+        @media (max-width: 768px) {
+            .top-nav-bar { display: none; } /* Mobilde gizle */
+        }
+
+        .main-categories-slider {
+            display: flex; gap: 10px; overflow-x: auto; padding: 1rem 1.25rem;
+            margin-bottom: 1rem; scrollbar-width: none; scroll-behavior: smooth;
+        }
+        .main-categories-slider::-webkit-scrollbar { display: none; }
+        .mc-card {
+            position: relative; width: 120px; height: 60px; flex-shrink: 0; border-radius: 12px; overflow: hidden; text-decoration: none; border: 2px solid transparent; transition: 0.2s;
+        }
+        .mc-card.active { border-color: #8B5A2B; }
+        .mc-bg {
+            position: absolute; inset: 0; background-size: cover; background-position: center; z-index: 0;
+        }
+        .mc-overlay {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.5); z-index: 1; transition: 0.3s;
+        }
+        .mc-card.active .mc-overlay { background: rgba(0,0,0,0.2); }
+        .mc-title {
+            position: relative; z-index: 2; color: #fff; display: flex; align-items: center; justify-content: center; height: 100%; font-size: 0.85rem; font-weight: 800; text-align: center; text-shadow: 0 2px 4px rgba(0,0,0,0.8); letter-spacing: 0.5px;
+        }
+
+        /* Subcategories (Alt Gruplar) Pills */
+        .subcat-slider {
+            display: flex; gap: 10px; overflow-x: auto; padding: 0.5rem 1.25rem 1.5rem;
+            scrollbar-width: none; scroll-behavior: smooth;
+        }
+        .subcat-slider::-webkit-scrollbar { display: none; }
+
+        /* Slider Okları */
+        .slider-wrapper { position: relative; display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .slider-btn { position: absolute; z-index: 10; background: rgba(255,255,255,0.9); border: 1px solid #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #64748b; font-size: 0.9rem; transition: 0.2s; }
+        .slider-btn:hover { background: #fff; color: var(--primary); transform: scale(1.05); }
+        .slider-btn:active { transform: scale(0.95); }
+        .slider-btn.left { left: 5px; }
+        .slider-btn.right { right: 5px; }
+        .slider-wrapper-subcat { border-bottom: none; }
+        .subcat-pill {
+            padding: 0.75rem 1.5rem; background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.85rem; font-weight: 700; color: #64748b; white-space: nowrap; cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02); text-transform: uppercase;
+        }
+        .subcat-pill.active {
+            border-color: #8B5A2B; color: #1e293b; box-shadow: 0 4px 10px rgba(139,90,43,0.1);
+        }
 
         /* Search Bar & Filters */
-        .search-container { padding: 0.5rem 1.25rem 0.5rem; background: var(--surface); }
+        .search-container { padding: 0.5rem 1.25rem 0.5rem; background: transparent; }
         .search-box { display: flex; align-items: center; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; padding: 0.65rem 1rem; }
         .search-box i { color: #94a3b8; font-size: 1.1rem; margin-right: 0.75rem; }
         .search-box input { border: none; background: transparent; flex: 1; font-family: inherit; font-size: 0.95rem; color: var(--text); outline: none; }
         .search-box input::placeholder { color: #94a3b8; }
 
-        .filter-pills { display: flex; overflow-x: auto; padding: 0.5rem 1.25rem 0.5rem; gap: 0.75rem; scrollbar-width: none; background: var(--surface); }
+        .filter-pills { display: flex; overflow-x: auto; padding: 0.5rem 1.25rem 0.5rem; gap: 0.75rem; scrollbar-width: none; background: transparent; }
         .filter-pills::-webkit-scrollbar { display: none; }
         .filter-pill { display: flex; align-items: center; gap: 6px; padding: 0.4rem 0.85rem; background: var(--bg); border: 1px solid var(--border); border-radius: 20px; font-size: 0.8rem; font-weight: 500; white-space: nowrap; cursor: pointer; transition: 0.2s; color: #64748b; }
         .filter-pill.active { background: #e2e8f0; color: var(--text); border-color: #cbd5e1; }
@@ -76,6 +179,41 @@
 
         /* Product Cards */
         .product-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
+        .product-modal-content {
+            background: var(--surface); width: 100%; border-radius: 24px 24px 0 0; padding: 2rem 1.5rem; position: relative; max-height: 90vh; overflow-y: auto;
+        }
+
+        /* Mobil Alt Sabit Menü (Süt Evi Tarzı) */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0; left: 0; width: 100%;
+            background: #ffffff;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.08);
+            z-index: 1000;
+            border-radius: 24px 24px 0 0;
+            padding: 0.75rem 1rem;
+            justify-content: space-around;
+        }
+        .mobile-bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 700;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+        .mobile-bottom-nav a i { font-size: 1.3rem; }
+        .mobile-bottom-nav a.active { color: #8B5A2B; }
+
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: flex; }
+            body { padding-bottom: 90px; } /* Menü alanı için boşluk */
+        }
+        
         .product-card { background: var(--surface); border-radius: var(--radius); padding: 1rem; display: flex; gap: 1rem; box-shadow: var(--shadow); position: relative; }
         
         .product-img-wrapper { width: 130px; height: 130px; border-radius: 20px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -105,11 +243,6 @@
         .sidebar-content { padding: 1rem 0; overflow-y: auto; }
         .sidebar-item { padding: 1rem 1.25rem; font-size: 1.05rem; font-weight: 500; color: var(--text); border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; }
         .sidebar-item:active { background: var(--bg); }
-
-        /* Add to Cart Button */
-        .btn-add { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); border: none; display: flex; align-items: center; justify-content: center; color: white; cursor: pointer; transition: 0.3s; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(255, 107, 107, 0.3); }
-        .btn-add:active { transform: scale(0.9); }
-        .btn-add.added { background: #2ecc71; box-shadow: 0 4px 10px rgba(46, 204, 113, 0.3); }
 
         /* Flying dot animation */
         .flying-dot { position: fixed; width: 14px; height: 14px; background: var(--primary); border-radius: 50%; z-index: 1000; pointer-events: none; transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1); opacity: 0; }
@@ -194,24 +327,20 @@
 
     <!-- Intro Screen Removed -->
 
-    <header>
+    <div class="sticky-top-container">
+        <!-- Top Nav Bar (Sol Tarafta Ana Sayfa ve Admin) -->
+        <div class="top-nav-bar">
+            <a href="{{ route('home') }}">Ana Sayfa</a>
+            <a href="javascript:void(0)" onclick="callWaiter()" style="color: #d97706;"><i class="fa-solid fa-bell"></i> Garson Çağır</a>
+            <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-user-lock"></i> Admin</a>
+        </div>
+
         <div class="top-bar">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <a href="/" style="color: var(--text); font-size: 1.2rem; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: var(--bg); text-decoration: none; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </a>
-                <div class="hamburger-menu" onclick="toggleSidebar()" style="cursor: pointer; margin-left: 5px; display: flex; align-items: center;">
-                    <i class="fa-solid fa-bars" style="font-size: 1.5rem; color: var(--text);"></i>
-                </div>
-                <div class="logo" style="margin-left: 5px;">
-                    @if($settings && $settings->logo)
-                        <img src="{{ asset('storage/' . $settings->logo) }}" style="height: 24px; border-radius: 4px;" alt="Logo">
-                    @else
-                        <i class="fa-solid fa-utensils"></i> 
-                    @endif
-                    {{ $settings && $settings->baslik ? $settings->baslik : 'Center Cafe' }}
-                </div>
-            </div>
+            <!-- Geri Butonu -->
+            <a href="{{ route('home') }}" style="color: var(--text); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px; text-decoration: none;">
+                <i class="fa-solid fa-chevron-left"></i> Geri
+            </a>
+            
             <div style="display: flex; gap: 1.25rem; align-items: center;">
                 <div class="cart-icon-container" id="cart-icon">
                     <i class="fa-solid fa-basket-shopping cart-icon"></i>
@@ -219,33 +348,48 @@
                 </div>
             </div>
         </div>
-        
+    </div>
+
+    <header>
+        <!-- Ana Kategoriler Slider -->
+        @if(isset($mainCategories) && $mainCategories->count() > 0)
+        <div class="slider-wrapper">
+            <button class="slider-btn left" onclick="scrollSlider('.main-categories-slider', -150)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="main-categories-slider" id="main-slider">
+                @foreach($mainCategories as $mg)
+                    <a href="{{ route('menu.show', urlencode($mg->anaGrup)) }}" class="mc-card {{ isset($mainCategory) && $mg->anaGrup == $mainCategory ? 'active' : '' }}">
+                        @if($mg->anaGrupResimPath && file_exists(storage_path('app/public/' . $mg->anaGrupResimPath)))
+                            <div class="mc-bg" style="background-image: url('{{ asset('storage/' . $mg->anaGrupResimPath) }}');"></div>
+                        @else
+                            <div class="mc-bg" style="background: linear-gradient(45deg, #a1c4fd, #c2e9fb);"></div>
+                        @endif
+                        <div class="mc-overlay"></div>
+                        <span class="mc-title">{{ mb_strtoupper($mg->anaGrup, 'UTF-8') }}</span>
+                    </a>
+                @endforeach
+            </div>
+            <button class="slider-btn right" onclick="scrollSlider('.main-categories-slider', 150)"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+        @endif
+
         <!-- Arama Çubuğu -->
         <div class="search-container">
             <div class="search-box">
                 <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="searchInput" placeholder="Yemek veya kategori ara..." onkeyup="filterProducts()">
+                <input type="text" id="searchInput" placeholder="Arama...." onkeyup="filterProducts()">
             </div>
         </div>
-
-        <!-- Hap Filtreler -->
-        <div class="filter-pills">
-            <div class="filter-pill active" onclick="toggleFilter(this, 'all')"><i class="fa-solid fa-star text-yellow-400"></i> Tümü</div>
-            <div class="filter-pill" onclick="toggleFilter(this, 'laktoz')"><i class="fa-solid fa-cow" style="color: #60a5fa;"></i> Laktoz</div>
-            <div class="filter-pill" onclick="toggleFilter(this, 'gluten')"><i class="fa-solid fa-wheat-awn text-amber-500"></i> Gluten</div>
-        </div>
-
-
         
-        <div class="categories" id="category-tabs">
-            @foreach($categories as $index => $category)
-                <div class="category-item {{ $index == 0 ? 'active' : '' }}" data-target="cat-{{ $index }}" onclick="scrollToCategory('cat-{{ $index }}', this)">
-                    <div class="category-circle">
-                        <i class="fa-solid fa-utensils"></i>
+        <div class="slider-wrapper slider-wrapper-subcat">
+            <button class="slider-btn left" onclick="scrollSlider('#category-tabs', -150)"><i class="fa-solid fa-chevron-left"></i></button>
+            <div class="subcat-slider" id="category-tabs">
+                @foreach($categories as $index => $category)
+                    <div class="subcat-pill {{ $index == 0 ? 'active' : '' }} category-item" data-target="cat-{{ $index }}" onclick="scrollToCategory('cat-{{ $index }}', this)">
+                        {{ mb_strtoupper($category, 'UTF-8') }}
                     </div>
-                    <div class="category-name">{{ $category }}</div>
-                </div>
-            @endforeach
+                @endforeach
+            </div>
+            <button class="slider-btn right" onclick="scrollSlider('#category-tabs', 150)"><i class="fa-solid fa-chevron-right"></i></button>
         </div>
     </header>
 
@@ -254,43 +398,47 @@
         <!-- Öne Çıkanlar (Featured Slider) -->
         <div class="featured-section">
             <h2 class="featured-title"><i class="fa-solid fa-fire text-orange-500"></i> Şefin Tavsiyesi</h2>
-            <div class="featured-slider">
-                @foreach($featuredProducts as $urun)
-                    @php
-                        $featCatName = mb_strtolower($urun->UrunGrubu ?? '', 'UTF-8');
-                        $isFeatDrink = preg_match('/(drink|beer|şarap|wine|su|kahve|coffee|coffe|çay|tea|beverage|içecek|meşrubat|import|local|vodka|cin|rakı|bira|kokteyl|cocktail|cooktail|moctail|mocktail|ayran|kola|fanta|sprite|soda|milkshake|daiquiri|mojito|shot|frozen)/i', $featCatName);
-                    @endphp
-                    <div class="featured-card" onclick="openBottomSheet(this, event)" 
-                         data-urun="{{ json_encode([
-                             'ad' => $urun->UrunAd,
-                             'aciklama' => $urun->UrunAciklama,
-                             'fiyat' => (float)$urun->FixFiyat,
-                             'kategori' => $urun->UrunGrubu ?? '',
-                             'is_drink' => $isFeatDrink ? 1 : 0,
-                             'has_lactose' => $urun->has_lactose ?? 0,
-                             'has_gluten' => $urun->has_gluten ?? 0,
-                             'malzemeler' => $urun->malzeme_listesi ?? [],
-                             'kalori' => $urun->kalori ?? '',
-                             'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
-                             'resim' => $urun->UrunResimPath ? asset('storage/' . $urun->UrunResimPath) : null
-                         ]) }}"
-                         data-vegan="{{ $urun->is_vegan }}" 
-                         data-gluten="{{ $urun->has_gluten }}" 
-                         data-lactose="{{ $urun->has_lactose }}" 
-                         data-aci="{{ $urun->is_aci }}">
-                        <div class="featured-img-wrapper">
-                            @if($urun->UrunResimPath && $urun->UrunResimPath !== '0')
-                                <img src="{{ asset('storage/' . $urun->UrunResimPath) }}" alt="{{ $urun->UrunAdKisa ?? $urun->UrunAd }}" class="featured-img">
-                            @else
-                                <div class="featured-img-placeholder"><i class="fa-solid fa-image"></i></div>
-                            @endif
+            <div class="slider-wrapper slider-wrapper-subcat" style="margin: 0 -1.25rem; padding: 0 1.25rem;">
+                <button class="slider-btn left" style="left: 10px;" onclick="scrollSlider('.featured-slider', -150)"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="featured-slider" style="margin:0; padding-left:0; padding-right:0;">
+                    @foreach($featuredProducts as $urun)
+                        @php
+                            $featCatName = mb_strtolower($urun->UrunGrubu ?? '', 'UTF-8');
+                            $isFeatDrink = preg_match('/(drink|beer|şarap|wine|su|kahve|coffee|coffe|çay|tea|beverage|içecek|meşrubat|import|local|vodka|cin|rakı|bira|kokteyl|cocktail|cooktail|moctail|mocktail|ayran|kola|fanta|sprite|soda|milkshake|daiquiri|mojito|shot|frozen)/i', $featCatName);
+                        @endphp
+                        <div class="featured-card" onclick="openBottomSheet(this, event)" 
+                             data-urun="{{ json_encode([
+                                 'ad' => $urun->UrunAd,
+                                 'aciklama' => $urun->UrunAciklama,
+                                 'fiyat' => (float)$urun->FixFiyat,
+                                 'kategori' => $urun->UrunGrubu ?? '',
+                                 'is_drink' => $isFeatDrink ? 1 : 0,
+                                 'has_lactose' => $urun->has_lactose ?? 0,
+                                 'has_gluten' => $urun->has_gluten ?? 0,
+                                 'malzemeler' => $urun->malzeme_listesi ?? [],
+                                 'kalori' => $urun->kalori ?? '',
+                                 'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
+                                 'resim' => $urun->UrunResimPath ? asset('storage/' . $urun->UrunResimPath) : null
+                             ]) }}"
+                             data-vegan="{{ $urun->is_vegan }}" 
+                             data-gluten="{{ $urun->has_gluten }}" 
+                             data-lactose="{{ $urun->has_lactose }}" 
+                             data-aci="{{ $urun->is_aci }}">
+                            <div class="featured-img-wrapper">
+                                @if($urun->UrunResimPath && $urun->UrunResimPath !== '0')
+                                    <img src="{{ asset('storage/' . $urun->UrunResimPath) }}" alt="{{ $urun->UrunAdKisa ?? $urun->UrunAd }}" class="featured-img">
+                                @else
+                                    <div class="featured-img-placeholder"><i class="fa-solid fa-image"></i></div>
+                                @endif
+                            </div>
+                            <div class="featured-info">
+                                <h3 class="featured-name">{{ mb_strtoupper($urun->UrunAdKisa ?? $urun->UrunAd, 'UTF-8') }}</h3>
+                                <div class="featured-price">₺{{ number_format((float)$urun->FixFiyat, 2, ',', '.') }}</div>
+                            </div>
                         </div>
-                        <div class="featured-info">
-                            <h3 class="featured-name">{{ $urun->UrunAdKisa ?? $urun->UrunAd }}</h3>
-                            <div class="featured-price">₺{{ number_format((float)$urun->FixFiyat, 2) }}</div>
-                        </div>
-                    </div>
-                @endforeach
+                    @endforeach
+                </div>
+                <button class="slider-btn right" style="right: 10px;" onclick="scrollSlider('.featured-slider', 150)"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
         </div>
         @endif
@@ -358,12 +506,6 @@
                                     </div>
                                     <div class="product-footer">
                                         <div class="product-price">₺{{ number_format((float)$urun->FixFiyat, 2) }}</div>
-                                        {{-- Sepete ekle butonu şimdilik gizlendi, ürün kartına tıklandığında açılıyor --}}
-                                        {{-- 
-                                        <button class="btn-add">
-                                            <i class="fa-solid fa-plus"></i>
-                                        </button>
-                                        --}}
                                     </div>
                                 </div>
                             </div>
@@ -378,8 +520,6 @@
     <div style="text-align: center; padding: 1rem; margin-bottom: 2rem; color: #cbd5e1; font-size: 0.7rem; letter-spacing: 0.5px; opacity: 0.7;">
         <i class="fa-solid fa-bolt" style="color: #fcd34d; margin-right: 3px;"></i> Powered by <a href="#" style="font-weight: 600; color: #94a3b8; text-decoration: none;">Mikale Yazılım</a>
     </div>
-
-
 
     <div class="fab" id="view-cart-btn" style="display: none;">
         <i class="fa-solid fa-basket-shopping"></i>
@@ -502,7 +642,59 @@
         --}}
     </div>
 
+    <!-- Mobil Alt Sabit Menü -->
+    <div class="mobile-bottom-nav">
+        <a href="{{ route('home') }}">
+            <i class="fa-solid fa-house"></i>
+            <span>Ana Sayfa</span>
+        </a>
+        <a href="javascript:void(0)" onclick="callWaiter()">
+            <i class="fa-solid fa-bell" style="color: #fcd34d;"></i>
+            <span>Garson Çağır</span>
+        </a>
+        <a href="{{ route('admin.dashboard') }}">
+            <i class="fa-solid fa-user-lock"></i>
+            <span>Admin</span>
+        </a>
+    </div>
+
+    <!-- Hidden QrCode -->
+    <input type="hidden" id="qrcode_val" value="{{ $qrcode ?? '' }}">
+
     <script>
+        function scrollSlider(selector, offset) {
+            const slider = document.querySelector(selector);
+            if (slider) {
+                slider.scrollBy({ left: offset, behavior: 'smooth' });
+            }
+        }
+
+        function callWaiter() {
+            let qrCode = document.getElementById('qrcode_val').value;
+            if (!qrCode) {
+                alert("Lütfen menüye masanızdaki QR kodu okutarak giriniz!");
+                return;
+            }
+
+            fetch("/api/v1/call/waiter/" + qrCode, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                }
+            })
+            .then(res => res.text())
+            .then(text => {
+                if (text === "ok") {
+                    alert("Garson çağrıldı! Birazdan masanızla ilgilenilecek.");
+                } else {
+                    alert(text);
+                }
+            })
+            .catch(err => {
+                alert("Bir hata oluştu.");
+            });
+        }
 
 
         let cartCount = 0;
@@ -590,7 +782,14 @@
                             chip.classList.remove("active");
                             if (chip.getAttribute("data-target") === id) {
                                 chip.classList.add("active");
-                                chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                                // Fix for iOS bounce: use manual scroll instead of scrollIntoView
+                                const slider = document.querySelector('.subcat-slider');
+                                if(slider) {
+                                    slider.scrollTo({
+                                        left: chip.offsetLeft - (slider.offsetWidth / 2) + (chip.offsetWidth / 2),
+                                        behavior: 'smooth'
+                                    });
+                                }
                             }
                         });
                     }
@@ -605,8 +804,16 @@
 
             // Aktif çipi güncelle ve merkeze kaydır
             document.querySelectorAll('.category-item').forEach(chip => chip.classList.remove('active'));
-            if(element) element.classList.add('active');
-            if(element) element.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            if(element) {
+                element.classList.add('active');
+                const slider = document.querySelector('.subcat-slider');
+                if(slider) {
+                    slider.scrollTo({
+                        left: element.offsetLeft - (slider.offsetWidth / 2) + (element.offsetWidth / 2),
+                        behavior: 'smooth'
+                    });
+                }
+            }
             
             // Bölüme yumuşak kaydırma
             const el = document.getElementById(id);
@@ -820,5 +1027,6 @@
             to { transform: translate(-50%, 0); opacity: 1; }
         }
     </style>
+
 </body>
 </html>

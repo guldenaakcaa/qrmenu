@@ -23,6 +23,7 @@ class Ayar extends Model
         'favicon',
         'adres',
         'google_map_url',
+        'google_review_url',
         'instagram_url',
         'whatsapp_number',
         'wifi_ssid',

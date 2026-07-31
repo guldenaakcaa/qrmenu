@@ -115,16 +115,23 @@ class DesktopSyncController extends Controller
         $request->validate([
             'tarih' => 'required|date',
             'nakit_toplam' => 'required|numeric',
-            'kredi_karti_toplam' => 'required|numeric'
+            'kredi_karti_toplam' => 'required|numeric',
+            'yemek_karti_toplam' => 'nullable|numeric',
+            'veresiye_toplam' => 'nullable|numeric'
         ]);
 
-        $genel_toplam = $request->nakit_toplam + $request->kredi_karti_toplam;
+        $yemek_karti = $request->input('yemek_karti_toplam', 0);
+        $veresiye = $request->input('veresiye_toplam', 0);
+
+        $genel_toplam = $request->nakit_toplam + $request->kredi_karti_toplam + $yemek_karti + $veresiye;
 
         Kasa::updateOrCreate(
             ['tarih' => $request->tarih],
             [
                 'nakit_toplam' => $request->nakit_toplam,
                 'kredi_karti_toplam' => $request->kredi_karti_toplam,
+                'yemek_karti_toplam' => $yemek_karti,
+                'veresiye_toplam' => $veresiye,
                 'genel_toplam' => $genel_toplam
             ]
         );

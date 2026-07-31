@@ -154,7 +154,7 @@ class AdminController extends Controller
     public function checkoutMasa(\Illuminate\Http\Request $request, $id)
     {
         $request->validate([
-            'odeme_turu' => 'required|in:Nakit,Kredi Kartı'
+            'odeme_turu' => 'required|in:Nakit,Kredi Kartı,Yemek Kartı,Veresiye'
         ]);
 
         $masa = \App\Models\Masa::findOrFail($id);
@@ -175,8 +175,12 @@ class AdminController extends Controller
 
             if ($request->odeme_turu == 'Nakit') {
                 $kasa->increment('nakit_toplam', $tutar);
-            } else {
+            } elseif ($request->odeme_turu == 'Kredi Kartı') {
                 $kasa->increment('kredi_karti_toplam', $tutar);
+            } elseif ($request->odeme_turu == 'Yemek Kartı') {
+                $kasa->increment('yemek_karti_toplam', $tutar);
+            } else {
+                $kasa->increment('veresiye_toplam', $tutar);
             }
             $kasa->increment('genel_toplam', $tutar);
 

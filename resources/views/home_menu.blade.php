@@ -14,7 +14,7 @@
     <style>
         :root {
             /* Eski (Beğenilen) Açık Renk Teması */
-            --bg-gradient: linear-gradient(135deg, #f0f8ff 0%, #f0fff4 100%); 
+            --bg-gradient: linear-gradient(135deg, #f0f8ff 0%, #f0fff4 100%);
             --text-primary: #1a202c;
             --text-secondary: #4a5568;
             --glass-bg: rgba(255, 255, 255, 0.7);
@@ -57,7 +57,7 @@
                 backdrop-filter: blur(8px); 
                 -webkit-backdrop-filter: blur(8px);
             @else
-                background: transparent;
+                background: rgba(244, 249, 249, 1);
             @endif
         }
 

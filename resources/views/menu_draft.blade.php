@@ -328,20 +328,20 @@
     <!-- Intro Screen Removed -->
 
     <div class="sticky-top-container">
-        <!-- Top Nav Bar (Sol Tarafta Ana Sayfa ve Admin) -->
-        <div class="top-nav-bar">
-            <a href="{{ route('home') }}">Ana Sayfa</a>
-            <a href="javascript:void(0)" onclick="callWaiter()" style="color: #d97706;"><i class="fa-solid fa-bell"></i> Garson Çağır</a>
-            <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-user-lock"></i> Admin</a>
-        </div>
-
         <div class="top-bar">
             <!-- Geri Butonu -->
             <a href="{{ route('home') }}" style="color: var(--text); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px; text-decoration: none;">
                 <i class="fa-solid fa-chevron-left"></i> Geri
             </a>
             
-            <div style="display: flex; gap: 1.25rem; align-items: center;">
+            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                <!-- Top Nav Bar (Masaüstü için Ana Sayfa ve Admin) -->
+                <div class="top-nav-bar" style="padding: 0; gap: 1.5rem;">
+                    <a href="{{ route('home') }}">Ana Sayfa</a>
+                    <a href="javascript:void(0)" onclick="callWaiter()" style="color: #d97706;"><i class="fa-solid fa-bell"></i> Garson Çağır</a>
+                    <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-user-lock"></i> Admin</a>
+                </div>
+                
                 <div class="cart-icon-container" id="cart-icon">
                     <i class="fa-solid fa-basket-shopping cart-icon"></i>
                     <div class="cart-badge" id="cart-badge">0</div>
@@ -658,6 +658,15 @@
         </a>
     </div>
 
+    <!-- Garson Çağır Modal / Bildirim -->
+    <div id="waiter-notification" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:12px 24px; border-radius:30px; font-weight:600; font-size:0.95rem; z-index:9999; box-shadow:0 10px 25px rgba(34,197,94,0.3); align-items:center; gap:8px;">
+        <i class="fa-solid fa-check-circle"></i> Garson çağrıldı!
+    </div>
+    
+    <div id="waiter-error" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#ef4444; color:white; padding:12px 24px; border-radius:30px; font-weight:600; font-size:0.95rem; z-index:9999; box-shadow:0 10px 25px rgba(239,68,68,0.3); align-items:center; gap:8px;">
+        <i class="fa-solid fa-triangle-exclamation"></i> Lütfen masanızdaki QR kodu okutun!
+    </div>
+
     <!-- Hidden QrCode -->
     <input type="hidden" id="qrcode_val" value="{{ $qrcode ?? '' }}">
 
@@ -672,7 +681,10 @@
         function callWaiter() {
             let qrCode = document.getElementById('qrcode_val').value;
             if (!qrCode) {
-                alert("Lütfen menüye masanızdaki QR kodu okutarak giriniz!");
+                let err = document.getElementById('waiter-error');
+                err.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Lütfen menüye masanızdaki QR kodu okutarak giriniz!';
+                err.style.display = 'flex';
+                setTimeout(() => { err.style.display = 'none'; }, 2500);
                 return;
             }
 
@@ -685,14 +697,22 @@
             })
             .then(res => res.text())
             .then(text => {
+                let notif = document.getElementById('waiter-notification');
                 if (text === "ok") {
-                    alert("Garson çağrıldı! Birazdan masanızla ilgilenilecek.");
+                    notif.innerHTML = '<i class="fa-solid fa-check-circle"></i> Garson çağrıldı! Birazdan masanızla ilgilenilecek.';
+                    notif.style.background = '#22c55e';
                 } else {
-                    alert(text);
+                    notif.innerHTML = '<i class="fa-solid fa-clock"></i> ' + text;
+                    notif.style.background = '#f59e0b';
                 }
+                notif.style.display = 'flex';
+                setTimeout(() => { notif.style.display = 'none'; }, 3000);
             })
             .catch(err => {
-                alert("Bir hata oluştu.");
+                let errEl = document.getElementById('waiter-error');
+                errEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Bir hata oluştu.';
+                errEl.style.display = 'flex';
+                setTimeout(() => { errEl.style.display = 'none'; }, 2500);
             });
         }
 
@@ -760,9 +780,34 @@
             });
         }
 
+        function checkArrows() {
+            document.querySelectorAll('.slider-wrapper').forEach(wrapper => {
+                const slider = wrapper.querySelector('.main-categories-slider, .subcat-slider, .featured-slider');
+                const leftBtn = wrapper.querySelector('.slider-btn.left');
+                const rightBtn = wrapper.querySelector('.slider-btn.right');
+                
+                if (slider && leftBtn && rightBtn) {
+                    if (slider.scrollWidth > slider.clientWidth) {
+                        leftBtn.style.display = slider.scrollLeft <= 0 ? 'none' : 'flex';
+                        rightBtn.style.display = Math.ceil(slider.scrollLeft + slider.clientWidth) >= slider.scrollWidth ? 'none' : 'flex';
+                    } else {
+                        leftBtn.style.display = 'none';
+                        rightBtn.style.display = 'none';
+                    }
+                }
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             const sections = document.querySelectorAll(".category-section");
             const navChips = document.querySelectorAll(".category-item");
+
+            // Okların durumunu kontrol et
+            checkArrows();
+            window.addEventListener('resize', checkArrows);
+            document.querySelectorAll('.main-categories-slider, .subcat-slider, .featured-slider').forEach(slider => {
+                slider.addEventListener('scroll', checkArrows);
+            });
 
             // Intersection Observer (Scrollspy)
             const observerOptions = {
@@ -1020,6 +1065,34 @@
 
             }, 600); // Wait for transition
         }
+
+        // Okları içeriğin sığıp sığmamasına göre gizle/göster
+        function updateSliderArrows() {
+            const wrappers = document.querySelectorAll('.slider-wrapper');
+            wrappers.forEach(wrapper => {
+                const slider = wrapper.querySelector('.main-categories-slider, .subcat-slider, .featured-slider');
+                if (slider) {
+                    const leftBtn = wrapper.querySelector('.slider-btn.left');
+                    const rightBtn = wrapper.querySelector('.slider-btn.right');
+                    
+                    // İçerik genişliği görünür genişlikten büyükse kaydırma vardır
+                    if (slider.scrollWidth > slider.clientWidth) {
+                        if(leftBtn) leftBtn.style.display = 'flex';
+                        if(rightBtn) rightBtn.style.display = 'flex';
+                    } else {
+                        if(leftBtn) leftBtn.style.display = 'none';
+                        if(rightBtn) rightBtn.style.display = 'none';
+                    }
+                }
+            });
+        }
+
+        // Sayfa yüklendiğinde ve ekran boyutu değiştiğinde çalıştır
+        document.addEventListener('DOMContentLoaded', updateSliderArrows);
+        window.addEventListener('resize', updateSliderArrows);
+        
+        // Fontlar, resimler yüklendikten sonra genişlikler değişebileceği için window.onload'a da ekleyelim
+        window.addEventListener('load', updateSliderArrows);
     </script>
     <style>
         @keyframes slideUp {

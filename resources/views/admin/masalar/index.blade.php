@@ -264,6 +264,14 @@
             <h4><i class="fa-solid fa-credit-card"></i> Kredi Kartı</h4>
             <p class="amount">₺{{ number_format($gunluk_kasa->kredi_karti_toplam ?? 0, 2, ',', '.') }}</p>
         </div>
+        <div class="kasa-item">
+            <h4><i class="fa-solid fa-utensils"></i> Yemek Kartı</h4>
+            <p class="amount">₺{{ number_format($gunluk_kasa->yemek_karti_toplam ?? 0, 2, ',', '.') }}</p>
+        </div>
+        <div class="kasa-item">
+            <h4><i class="fa-solid fa-book"></i> Veresiye</h4>
+            <p class="amount">₺{{ number_format($gunluk_kasa->veresiye_toplam ?? 0, 2, ',', '.') }}</p>
+        </div>
         <div class="kasa-item" style="background: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5);">
             <h4><i class="fa-solid fa-sack-dollar"></i> Toplam Ciro</h4>
             <p class="amount">₺{{ number_format($gunluk_kasa->genel_toplam ?? 0, 2, ',', '.') }}</p>
@@ -341,7 +349,7 @@
                 </form>
             </div>
 
-            <div style="cursor: pointer; padding: 1.5rem 1rem 0.5rem;" onclick="openMasaModal('{{ $masa->isim }}', {{ $masa->guncel_tutar }})">
+            <div style="cursor: pointer; padding: 1.5rem 1rem 0.5rem;" onclick="openMasaModal('{{ $masa->isim }}', {{ $masa->id }}, {{ $masa->durum }}, {{ $masa->guncel_tutar }})">
                 <div class="masa-icon">
                     <i class="fa-solid fa-chair"></i>
                 </div>
@@ -365,7 +373,7 @@
 
             <!-- QR Kod Button at bottom -->
             <div style="padding: 0 1rem 1rem 1rem;">
-                <button type="button" onclick="openQrModal('{{ $masa->isim }}', '{{ isset($qrCodes[$masa->id]) ? $qrCodes[$masa->id]->QRCode : '' }}')" style="width: 100%; background: #10b981; color: white; border: none; border-radius: 8px; padding: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <button type="button" onclick="openQrModal('{{ $masa->isim }}', '{{ (isset($qrCodes[$masa->id]) && !empty($qrCodes[$masa->id]->QRCode)) ? $qrCodes[$masa->id]->QRCode : $masa->slug }}')" style="width: 100%; background: #10b981; color: white; border: none; border-radius: 8px; padding: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
                     <i class="fa-solid fa-qrcode"></i> QR Kod
                 </button>
             </div>

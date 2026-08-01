@@ -32,6 +32,8 @@ Route::prefix('v1')->group(function () {
     Route::post('getforms', [MainController::class, 'GetAllForms']);
 
     Route::post('call/waiter/{qrcode}', [APIController::class, 'AddWaiterCallToTable']);
+    Route::get('getwaitercalls', [APIController::class, 'GetActiveWaiterCalls']);
+    Route::post('getwaitercalls', [APIController::class, 'GetActiveWaiterCalls']);
 
     // Masaüstü Login Rotası (Token Almak İçin - Herkese Açık)
     Route::post('desktop/login', [\App\Http\Controllers\Api\DesktopSyncController::class, 'login']);
@@ -45,5 +47,9 @@ Route::prefix('v1')->group(function () {
         // Desktop Menü (Kategori & Ürün) Senkronizasyon Rotaları
         Route::post('desktop/sync/menu', [\App\Http\Controllers\Api\DesktopSyncController::class, 'syncMenuPost']);
         Route::get('desktop/sync/menu', [\App\Http\Controllers\Api\DesktopSyncController::class, 'syncMenuGet']);
+
+        // Desktop Garson Çağrıları Çekme Rotaları
+        Route::get('desktop/sync/waiter-calls', [\App\Http\Controllers\Api\DesktopSyncController::class, 'getWaiterCalls']);
+        Route::post('desktop/sync/waiter-calls', [\App\Http\Controllers\Api\DesktopSyncController::class, 'getWaiterCalls']);
     });
 });

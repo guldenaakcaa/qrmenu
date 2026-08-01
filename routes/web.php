@@ -48,6 +48,7 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     Route::put('/masalar/{id}', [AdminController::class, 'updateMasa'])->name('admin.masalar.update');
     Route::delete('/masalar/{id}', [AdminController::class, 'destroyMasa'])->name('admin.masalar.destroy');
     Route::post('/masalar/{id}/checkout', [AdminController::class, 'checkoutMasa'])->name('admin.masalar.checkout');
+    Route::post('/masalar/cagri-tamamla/{id}', [AdminController::class, 'completeCall'])->name('admin.masalar.completeCall');
     Route::get('/admins', [AdminController::class, 'admins'])->name('admin.admins');
     Route::post('/admins', [AdminController::class, 'storeAdmin'])->name('admin.admins.store');
     Route::put('/admins/{id}', [AdminController::class, 'updateAdmin'])->name('admin.admins.update');

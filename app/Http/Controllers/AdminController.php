@@ -73,7 +73,19 @@ class AdminController extends Controller
         $gunluk_kasa = \App\Models\Kasa::where('tarih', $seciliTarih)->first();
         $kasa_islemleri = \App\Models\KasaIslem::where('tarih', $seciliTarih)->orderBy('islem_saati', 'desc')->get();
         
-        return view('admin.masalar.index', compact('masalar', 'masa_siparisleri', 'gunluk_kasa', 'kasa_islemleri', 'seciliTarih', 'qrCodes'));
+        $cagrilar = \App\Models\QrCodeCagri::where('Status', 0)->get();
+
+        return view('admin.masalar.index', compact('masalar', 'masa_siparisleri', 'gunluk_kasa', 'kasa_islemleri', 'seciliTarih', 'qrCodes', 'cagrilar'));
+    }
+
+    public function completeCall($id)
+    {
+        $cagri = \App\Models\QrCodeCagri::find($id);
+        if ($cagri) {
+            $cagri->Status = 1;
+            $cagri->save();
+        }
+        return redirect()->back()->with('success', 'Garson çağrısı ilgilenildi olarak işaretlendi.');
     }
 
     public function storeMasa(\Illuminate\Http\Request $request)

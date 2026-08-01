@@ -9,19 +9,81 @@ use Illuminate\Http\Request;
 
 class MenuController extends Controller
 {
+    private function resolveQrCode($qrcode = null)
+    {
+        if (!$qrcode && session()->has('current_qrcode')) {
+            $qrcode = session()->get('current_qrcode');
+        }
+        if (!$qrcode && isset($_GET['masa'])) {
+            $qrcode = $_GET['masa'];
+        }
+        if (!$qrcode && isset($_GET['qr'])) {
+            $qrcode = $_GET['qr'];
+        }
+
+        $qrCodeCart = null;
+        if ($qrcode) {
+            $qrCodeCart = \App\Models\QrCodeKart::where('QRCode', $qrcode)
+                            ->orWhere('Masaismi', $qrcode)
+                            ->orWhere('Masa_id', $qrcode)
+                            ->first();
+
+            if (!$qrCodeCart) {
+                $cleanName = str_replace('-', ' ', $qrcode);
+                $masa = \App\Models\Masa::where('slug', $qrcode)
+                            ->orWhere('isim', $qrcode)
+                            ->orWhere('isim', $cleanName)
+                            ->orWhere('isim', 'LIKE', '%' . $qrcode . '%')
+                            ->orWhere('id', $qrcode)
+                            ->first();
+
+                if (!$masa && is_numeric($qrcode)) {
+                    $masa = \App\Models\Masa::where('isim', 'Masa ' . $qrcode)->orWhere('isim', 'MASA ' . $qrcode)->first();
+                }
+
+                if ($masa) {
+                    $qrCodeCart = \App\Models\QrCodeKart::where('Masa_id', $masa->id)->first();
+                    if (!$qrCodeCart) {
+                        $newQr = $masa->slug ?? ('masa-' . $masa->id);
+                        $qrCodeCart = \App\Models\QrCodeKart::create([
+                            'QRCode' => $newQr,
+                            'Cari_id' => 1,
+                            'QRTur' => 1,
+                            'KullaniciParola' => '',
+                            'Masa_id' => $masa->id,
+                            'Masaismi' => $masa->isim,
+                            'MusteriAd' => '',
+                            'KullaniciAd' => '',
+                            'Personel_id' => 0,
+                            'Status' => 1
+                        ]);
+                    }
+                }
+            }
+
+            if ($qrCodeCart) {
+                $qrcode = $qrCodeCart->QRCode;
+                session()->put('current_qrcode', $qrcode);
+                session()->put('current_masaismi', $qrCodeCart->Masaismi);
+            } else {
+                session()->put('current_qrcode', $qrcode);
+                if (is_numeric($qrcode)) {
+                    session()->put('current_masaismi', 'Masa ' . $qrcode);
+                } else {
+                    session()->put('current_masaismi', ucwords(str_replace('-', ' ', $qrcode)));
+                }
+            }
+        }
+
+        return [$qrcode, $qrCodeCart];
+    }
+
     public function index($qrcode = null)
     {
         $settings = \App\Models\Ayar::first();
         $mainCategories = AnaGrup::orderBy('siraNo')->get();
         
-        $qrCodeCart = null;
-        if ($qrcode) {
-            $qrCodeCart = \App\Models\QrCodeKart::where('QRCode', $qrcode)->first();
-            if ($qrCodeCart) {
-                // Sadece valid bir karekod okutulmuşsa session'a kaydedelim (opsiyonel, ileride lazım olabilir)
-                session()->put('current_qrcode', $qrcode);
-            }
-        }
+        [$qrcode, $qrCodeCart] = $this->resolveQrCode($qrcode);
 
         return view('home_menu', compact('mainCategories', 'settings', 'qrCodeCart', 'qrcode'));
     }
@@ -37,11 +99,7 @@ class MenuController extends Controller
             return redirect()->route('home');
         }
 
-        $qrcode = session('current_qrcode');
-        $qrCodeCart = null;
-        if ($qrcode) {
-            $qrCodeCart = \App\Models\QrCodeKart::where('QRCode', $qrcode)->first();
-        }
+        [$qrcode, $qrCodeCart] = $this->resolveQrCode(null);
 
         $products = UrunKart::whereIn('UrunGrubu', $subCategories)->get();
 
@@ -180,11 +238,7 @@ class MenuController extends Controller
         $mainCategory = 'Arama: ' . $query;
         $mainCategories = AnaGrup::orderBy('siraNo')->get();
 
-        $qrcode = session('current_qrcode');
-        $qrCodeCart = null;
-        if ($qrcode) {
-            $qrCodeCart = \App\Models\QrCodeKart::where('QRCode', $qrcode)->first();
-        }
+        [$qrcode, $qrCodeCart] = $this->resolveQrCode(null);
 
         return view('menu_draft', compact('categories', 'productsByCategory', 'settings', 'featuredProducts', 'mainCategory', 'mainCategories', 'qrcode', 'qrCodeCart'));
     }

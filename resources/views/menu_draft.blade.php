@@ -113,6 +113,7 @@
         .main-categories-slider {
             display: flex; gap: 10px; overflow-x: auto; padding: 1rem 1.25rem;
             margin-bottom: 1rem; scrollbar-width: none; scroll-behavior: smooth;
+            width: 100%; justify-content: center; justify-content: safe center;
         }
         .main-categories-slider::-webkit-scrollbar { display: none; }
         .mc-card {
@@ -134,11 +135,12 @@
         .subcat-slider {
             display: flex; gap: 10px; overflow-x: auto; padding: 0.5rem 1.25rem 1.5rem;
             scrollbar-width: none; scroll-behavior: smooth;
+            width: 100%; justify-content: center; justify-content: safe center;
         }
         .subcat-slider::-webkit-scrollbar { display: none; }
 
         /* Slider Okları */
-        .slider-wrapper { position: relative; display: flex; align-items: center; border-bottom: 1px solid rgba(0,0,0,0.05); }
+        .slider-wrapper { position: relative; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid rgba(0,0,0,0.05); width: 100%; }
         .slider-btn { position: absolute; z-index: 10; background: rgba(255,255,255,0.9); border: 1px solid #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: #64748b; font-size: 0.9rem; transition: 0.2s; }
         .slider-btn:hover { background: #fff; color: var(--primary); transform: scale(1.05); }
         .slider-btn:active { transform: scale(0.95); }
@@ -174,8 +176,7 @@
         
         /* Category Section & Title spacing */
         .category-section { scroll-margin-top: 140px; }
-        .section-title { font-size: 1.35rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b; }
-        .category-section:first-child .section-title { margin-top: 1rem; }
+        .section-title { font-size: 1.35rem; font-weight: 700; margin-top: 1rem; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 0.5px; color: #1e293b; }
 
         /* Product Cards */
         .product-list { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem; }
@@ -277,19 +278,19 @@
         .option-price { font-size: 0.95rem; color: var(--primary); font-weight: 600; }
 
         /* Featured Slider Redesign */
-        .featured-section { padding: 0 1.25rem; margin-top: 1.5rem; margin-bottom: 1.5rem; }
-        .featured-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-dark); display: flex; align-items: center; gap: 8px; letter-spacing: -0.5px; }
+        .featured-section { padding: 0 1.25rem; margin-top: 0.75rem; margin-bottom: 1rem; }
+        .featured-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem; color: var(--text-dark); display: flex; align-items: center; gap: 6px; letter-spacing: -0.3px; }
         .featured-title i { color: #ff4757; }
-        .featured-slider { display: flex; gap: 1rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 15px; margin: 0 -1.25rem; padding-left: 1.25rem; padding-right: 1.25rem; }
+        .featured-slider { display: flex; gap: 0.75rem; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding-bottom: 8px; margin: 0 -1.25rem; padding-left: 1.25rem; padding-right: 1.25rem; }
         .featured-slider::-webkit-scrollbar { display: none; }
-        .featured-card { flex: 0 0 200px; scroll-snap-align: start; background: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 20px rgba(0,0,0,0.05), 0 2px 6px rgba(0,0,0,0.03); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s ease; }
+        .featured-card { flex: 0 0 140px; scroll-snap-align: start; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03); display: flex; flex-direction: column; cursor: pointer; border: 1px solid rgba(0,0,0,0.04); transition: transform 0.2s ease; }
         .featured-card:active { transform: scale(0.98); }
-        .featured-img-wrapper { width: 100%; height: 180px; background: transparent; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 10px; }
-        .featured-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 8px 15px rgba(0,0,0,0.1)); }
-        .featured-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #cbd5e1; }
-        .featured-info { padding: 1rem; display: flex; flex-direction: column; gap: 6px; }
-        .featured-name { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); line-height: 1.3; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
-        .featured-price { font-size: 1.15rem; font-weight: 800; color: var(--primary); margin: 0; }
+        .featured-img-wrapper { width: 100%; height: 100px; background: transparent; position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; margin-top: 6px; }
+        .featured-img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 6px 12px rgba(0,0,0,0.08)); }
+        .featured-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; color: #cbd5e1; }
+        .featured-info { padding: 0.5rem 0.75rem; display: flex; flex-direction: column; gap: 3px; }
+        .featured-name { font-size: 0.9rem; font-weight: 700; color: var(--text-dark); line-height: 1.25; margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; white-space: normal; }
+        .featured-price { font-size: 0.95rem; font-weight: 800; color: var(--primary); margin: 0; }
         
         /* Custom Checkbox & Radio */
         .custom-radio, .custom-checkbox { width: 22px; height: 22px; border: 2px solid #cbd5e1; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; flex-shrink: 0; }
@@ -315,8 +316,8 @@
             .product-desc { font-size: 0.8rem; }
             .price-badge { font-size: 0.85rem; padding: 3px 8px; top: 0.75rem; right: 0.75rem; }
             
-            .featured-card { flex: 0 0 140px; }
-            .featured-img-wrapper { height: 110px; }
+            .featured-card { flex: 0 0 115px; }
+            .featured-img-wrapper { height: 75px; }
             
             .bs-product-img { max-width: 180px; margin-bottom: 8px; }
             .bs-title { font-size: 1.2rem; }
@@ -328,11 +329,17 @@
     <!-- Intro Screen Removed -->
 
     <div class="sticky-top-container">
-        <div class="top-bar">
+        <div class="top-bar" style="position: relative;">
             <!-- Geri Butonu -->
             <a href="{{ route('home') }}" style="color: var(--text); font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 6px; text-decoration: none;">
                 <i class="fa-solid fa-chevron-left"></i> Geri
             </a>
+
+            <!-- Masa Badge -->
+            <div id="header-table-badge" style="display: {{ (isset($qrCodeCart) && $qrCodeCart) || session('current_masaismi') ? 'flex' : 'none' }}; position: absolute; left: 50%; transform: translateX(-50%); z-index: 20; background: linear-gradient(135deg, #1e293b, #0f172a); color: #f8fafc; padding: 6px 16px; border-radius: 20px; font-size: 0.88rem; font-weight: 700; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); white-space: nowrap;">
+                <i class="fa-solid fa-chair" style="color: #fcd34d; font-size: 0.95rem;"></i>
+                <span id="header-table-name">{{ $qrCodeCart ? $qrCodeCart->Masaismi : (session('current_masaismi') ?? '') }}</span>
+            </div>
             
             <div style="display: flex; gap: 1.5rem; align-items: center;">
                 <!-- Top Nav Bar (Masaüstü için Ana Sayfa ve Admin) -->
@@ -444,7 +451,7 @@
         @endif
         @foreach($categories as $index => $category)
             @if(isset($productsByCategory[$category]) && $productsByCategory[$category]->count() > 0)
-                <div class="category-section" id="cat-{{ $index }}">
+                <div class="category-section" id="cat-{{ $index }}" style="{{ $index != 0 ? 'display: none;' : '' }}">
                     <h2 class="section-title">{{ $category }}</h2>
                     
                     <div class="product-list">
@@ -668,9 +675,28 @@
     </div>
 
     <!-- Hidden QrCode -->
-    <input type="hidden" id="qrcode_val" value="{{ $qrcode ?? '' }}">
+    <input type="hidden" id="qrcode_val" value="{{ $qrcode ?? (session('current_qrcode') ?? '') }}">
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentQr = document.getElementById('qrcode_val') ? document.getElementById('qrcode_val').value : '';
+            let serverTableName = document.getElementById('header-table-name') ? document.getElementById('header-table-name').textContent.trim() : '';
+            
+            if (currentQr && serverTableName) {
+                localStorage.setItem('menu_qrcode', currentQr);
+                localStorage.setItem('menu_table_name', serverTableName);
+            } else if (!currentQr && localStorage.getItem('menu_qrcode')) {
+                if (document.getElementById('qrcode_val')) {
+                    document.getElementById('qrcode_val').value = localStorage.getItem('menu_qrcode');
+                }
+                if (document.getElementById('header-table-name')) {
+                    let tName = localStorage.getItem('menu_table_name') || 'Masa';
+                    document.getElementById('header-table-name').textContent = tName;
+                    document.getElementById('header-table-badge').style.display = 'flex';
+                }
+            }
+        });
+
         function scrollSlider(selector, offset) {
             const slider = document.querySelector(selector);
             if (slider) {
@@ -679,7 +705,7 @@
         }
 
         function callWaiter() {
-            let qrCode = document.getElementById('qrcode_val').value;
+            let qrCode = (document.getElementById('qrcode_val') ? document.getElementById('qrcode_val').value : '') || localStorage.getItem('menu_qrcode') || '';
             if (!qrCode) {
                 let err = document.getElementById('waiter-error');
                 err.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Lütfen menüye masanızdaki QR kodu okutarak giriniz!';
@@ -771,11 +797,14 @@
                     }
                 });
 
-                // Hiç eşleşen ürün yoksa kategoriyi tamamen gizle
-                if (hasVisibleProduct) {
-                    section.style.display = 'block';
+                // Arama metni veya filtre varken eşleşen kategorileri göster, normalde sadece aktif sekme görünsün
+                const isSearching = (query !== '' || activeFilter !== 'all');
+                if (isSearching) {
+                    section.style.display = hasVisibleProduct ? 'block' : 'none';
                 } else {
-                    section.style.display = 'none';
+                    const activeTab = document.querySelector('.category-item.active');
+                    const targetId = activeTab ? activeTab.getAttribute('data-target') : 'cat-0';
+                    section.style.display = (section.getAttribute('id') === targetId) ? 'block' : 'none';
                 }
             });
         }
@@ -799,55 +828,23 @@
         }
 
         document.addEventListener("DOMContentLoaded", () => {
-            const sections = document.querySelectorAll(".category-section");
-            const navChips = document.querySelectorAll(".category-item");
-
             // Okların durumunu kontrol et
             checkArrows();
             window.addEventListener('resize', checkArrows);
             document.querySelectorAll('.main-categories-slider, .subcat-slider, .featured-slider').forEach(slider => {
                 slider.addEventListener('scroll', checkArrows);
             });
-
-            // Intersection Observer (Scrollspy)
-            const observerOptions = {
-                root: null,
-                rootMargin: "-150px 0px -60% 0px", // Header offset'ini hesaba katarak
-                threshold: 0
-            };
-
-            const observer = new IntersectionObserver((entries) => {
-                if (isScrolling) return; // Kullanıcı butona basarak scroll yapıyorsa göz ardı et
-
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const id = entry.target.getAttribute("id");
-                        
-                        navChips.forEach(chip => {
-                            chip.classList.remove("active");
-                            if (chip.getAttribute("data-target") === id) {
-                                chip.classList.add("active");
-                                // Fix for iOS bounce: use manual scroll instead of scrollIntoView
-                                const slider = document.querySelector('.subcat-slider');
-                                if(slider) {
-                                    slider.scrollTo({
-                                        left: chip.offsetLeft - (slider.offsetWidth / 2) + (chip.offsetWidth / 2),
-                                        behavior: 'smooth'
-                                    });
-                                }
-                            }
-                        });
-                    }
-                });
-            }, observerOptions);
-
-            sections.forEach(sec => observer.observe(sec));
         });
 
         function scrollToCategory(id, element) {
-            isScrolling = true;
+            // Sekme değiştirirken eski arama kaldıysa temizle ki o sekmenin ürünleri görünsün
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput && searchInput.value !== '') {
+                searchInput.value = '';
+                document.querySelectorAll('.product-card').forEach(p => p.style.display = 'flex');
+            }
 
-            // Aktif çipi güncelle ve merkeze kaydır
+            // Aktif sekmeyi güncelle ve slider'da merkeze kaydır
             document.querySelectorAll('.category-item').forEach(chip => chip.classList.remove('active'));
             if(element) {
                 element.classList.add('active');
@@ -860,22 +857,18 @@
                 }
             }
             
-            // Bölüme yumuşak kaydırma
-            const el = document.getElementById(id);
-            if(el) {
-                const headerOffset = 210; // Arama barı vs. eklendiği için offseti arttırdık
-                const elementPosition = el.getBoundingClientRect().top;
-                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-                
-                window.scrollTo({
-                     top: offsetPosition,
-                     behavior: "smooth"
-                });
+            // Seçilen kategoriyi göster, diğerlerini gizle (Sekme / Tab yapısı - Sayfa aşağı kaymaz!)
+            document.querySelectorAll('.category-section').forEach(sec => {
+                if (sec.getAttribute('id') === id) {
+                    sec.style.display = 'block';
+                } else {
+                    sec.style.display = 'none';
+                }
+            });
 
-                // Scroll bittikten sonra Observer'ı tekrar aktifleştir (yaklaşık 800ms)
-                setTimeout(() => {
-                    isScrolling = false;
-                }, 800);
+            // Kullanıcı uzun bir listede çok aşağı indiyse sekme değiştiğinde üst kısmı kolay görsün
+            if (window.pageYOffset > 250) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
             }
         }
 

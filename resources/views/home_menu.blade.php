@@ -33,12 +33,13 @@
             position: relative;
         }
 
-        /* Arka Plan Görseli */
+       /* Arka Plan Görseli */
         body::before {
             content: '';
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -2;
+            pointer-events: none;
             @if($settings && $settings->karsilama_gorsel)
                 background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') center/cover no-repeat;
             @else
@@ -52,12 +53,13 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
+            pointer-events: none;
             @if($settings && $settings->karsilama_gorsel)
                 background: rgba(244, 249, 249, 0.88); 
                 backdrop-filter: blur(8px); 
                 -webkit-backdrop-filter: blur(8px);
             @else
-                background: rgba(244, 249, 249, 1);
+                background: transparent;
             @endif
         }
 
@@ -87,7 +89,7 @@
             flex-direction: column;
             align-items: center;
             cursor: pointer;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.8rem;
         }
 
         .brand-logo {
@@ -109,7 +111,7 @@
             font-weight: 800;
             color: var(--text-primary);
             letter-spacing: -0.03em;
-            margin-bottom: 1rem; 
+            margin-bottom: 0.5rem; 
             text-shadow: 0 2px 10px rgba(255,255,255,0.8);
         }
 
@@ -118,45 +120,161 @@
             font-weight: 800;
             color: #4b5563; /* Kırmızı olmasın diye düzeltildi */
             margin-top: -0.7rem; /* Center Cafe'ye yaklaştırmak için */
-            margin-bottom: 3.5rem; /* Arama çubuğu ile arası açıldı */
+            margin-bottom: 1rem; /* Masa badge ile arası */
             letter-spacing: 0.5px;
         }
 
-        /* Arama Çubuğu */
-        .search-bar {
+        /* Bütünleşik Arama & Menüye Git Alanı */
+        html { scroll-behavior: smooth; }
+        .unified-search-box {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             width: 100%;
-            max-width: 400px;
-            position: relative;
+            max-width: 550px;
             margin: 0 auto;
-        }
-        .search-bar input {
-            width: 100%;
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
+            background: var(--glass-bg, rgba(255,255,255,0.9));
+            border: 1px solid var(--glass-border, rgba(255,255,255,0.8));
             border-radius: 100px;
-            padding: 0.75rem 1rem 0.75rem 2.5rem;
-            font-size: 0.9rem;
-            color: var(--text-primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            padding: 5px 6px 5px 16px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.05);
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
         }
-        .search-bar input:focus {
+        .unified-search-box:focus-within {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.09);
+        }
+        .search-form-inner {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 0;
+            position: relative;
+        }
+        .search-btn-icon {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0 10px 0 0;
             outline: none;
-            background: rgba(255,255,255,0.95);
-            border-color: #a0aec0;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            color: var(--text-secondary, #64748b);
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
         }
-        .search-bar i {
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-secondary);
-            opacity: 0.7;
+        .search-form-inner input {
+            width: 100%;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0.6rem 0.5rem 0.6rem 0 !important;
+            font-size: 0.95rem;
+            color: var(--text-primary, #1e293b);
+            outline: none;
+        }
+        .search-form-inner input:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        .btn-goto-menu-inner {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: #0f172a;
+            color: #ffffff !important;
+            border-radius: 100px;
+            padding: 0.7rem 1.4rem;
             font-size: 0.9rem;
+            font-weight: 700;
+            text-decoration: none;
+            white-space: nowrap;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+            transition: all 0.25s ease;
+            flex-shrink: 0;
         }
+        .btn-goto-menu-inner:hover {
+            background: #1e293b;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+        }
+        .btn-goto-menu-inner i {
+            color: #f59e0b;
+            font-size: 0.95rem;
+        }
+        #menu-bolumu {
+            scroll-margin-top: 20px;
+        }
+
+        /* Hızlı Erişim Butonları (Pills) */
+        .quick-links-strip {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.5rem;
+            width: 100%;
+            max-width: 600px;
+            margin: 0.2rem auto 2rem auto;
+            padding: 0 0.5rem;
+        }
+        .quick-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: all 0.25s ease;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+        }
+        .quick-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+        }
+        .quick-pill i {
+            font-size: 0.95rem;
+        }
+        /* Wi-Fi - Koyu elegant */
+        .pill-wifi {
+            background: linear-gradient(135deg, #1e293b, #334155);
+            color: #e2e8f0;
+        }
+        .pill-wifi i { color: #38bdf8; }
+        /* Instagram - Pembe-mor gradyan */
+        .pill-instagram {
+            background: linear-gradient(135deg, #f43f5e, #a855f7);
+            color: #fff;
+        }
+        /* Google Yorum - Sarı-turuncu canlı */
+        .pill-review {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: #fff;
+        }
+        .pill-review i { color: #fef3c7; }
+        /* WhatsApp - Yeşil */
+        .pill-whatsapp {
+            background: linear-gradient(135deg, #22c55e, #16a34a);
+            color: #fff;
+        }
+        /* Harita / Konum - Mavi */
+        .pill-map {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: #fff;
+        }
+        /* Telefon - Slate */
+        .pill-phone {
+            background: linear-gradient(135deg, #475569, #1e293b);
+            color: #e2e8f0;
+        }
+        .pill-phone i { color: #4ade80; }
 
         /* Kategoriler */
         .bento-grid {
@@ -334,7 +452,7 @@
 <body>
 
     <div class="app-container">
-        <header style="{{ ($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) ? 'margin-top: 3rem;' : 'margin-top: 0.8rem;' }}">
+        <header style="{{ ($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) ? 'margin-top: 2rem;' : 'margin-top: 0.8rem;' }}">
             <!-- Tıklanabilir Logo & Başlık -->
             <a href="{{ route('home') }}" class="brand-link">
                 @if($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo)))
@@ -353,15 +471,72 @@
             </p>
             @endif
             
-            <form action="{{ route('menu.search') }}" method="GET" class="search-bar" style="display: flex; align-items: center;">
-                <button type="submit" style="background: none; border: none; cursor: pointer; padding: 0; outline: none; position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); z-index: 10;">
-                    <i class="fa-solid fa-magnifying-glass" style="position: static; transform: none; font-size: 1.1rem;"></i>
-                </button>
-                <input type="text" name="q" placeholder="Lezzet arayın..." required style="padding-left: 3rem;">
-            </form>
+            <!-- Masa Badge - Logodan kurtulup arama kutusunun hemen üstünde merkezi konumlandı -->
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <div id="home-table-badge" style="display: {{ (isset($qrCodeCart) && $qrCodeCart) || session('current_masaismi') ? 'inline-flex' : 'none' }}; background: linear-gradient(135deg, #1e293b, #0f172a); color: #f8fafc; padding: 6px 20px; border-radius: 25px; font-size: 0.95rem; font-weight: 700; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.12); border: 1px solid rgba(255,255,255,0.15); margin-bottom: 1.9rem;">
+                    <i class="fa-solid fa-chair" style="color: #fcd34d; font-size: 1.1rem;"></i>
+                    <span id="home-table-name">{{ $qrCodeCart ? $qrCodeCart->Masaismi : (session('current_masaismi') ?? '') }}</span>
+                </div>
+            </div>
+
+            <!-- Bütünleşik Arama & Menüye Git (Beyaz Kutunun İçinde) -->
+            <div class="unified-search-box">
+                <form action="{{ route('menu.search') }}" method="GET" class="search-form-inner">
+                    <button type="submit" class="search-btn-icon" title="Ara">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <input type="text" name="q" placeholder="Lezzet arayın..." required>
+                </form>
+                <a href="{{ $mainCategories->count() > 0 ? route('menu.show', urlencode($mainCategories->first()->anaGrup)) : '#' }}" class="btn-goto-menu-inner" title="Menüye Git">
+                    <i class="fa-solid fa-utensils"></i>
+                    <span>Menüye Git</span>
+                </a>
+            </div>
         </header>
 
-        <main class="bento-grid">
+        <!-- Hızlı Erişim Butonları (Pills) -->
+        @if($settings && ($settings->wifi_ssid || $settings->instagram_url || $settings->google_review_url || $settings->whatsapp_number || $settings->google_map_url || $settings->telefon))
+        <div class="quick-links-strip">
+            @if($settings->wifi_ssid)
+                <span class="quick-pill pill-wifi">
+                    <i class="fa-solid fa-wifi"></i>
+                    Wi-Fi: {{ $settings->wifi_ssid }}@if($settings->wifi_password) / {{ $settings->wifi_password }}@endif
+                </span>
+            @endif
+            @if($settings->google_review_url)
+                <a href="{{ $settings->google_review_url }}" target="_blank" class="quick-pill pill-review">
+                    <i class="fa-solid fa-star"></i>
+                    Bizi Değerlendirin
+                </a>
+            @endif
+            @if($settings->instagram_url)
+                <a href="{{ $settings->instagram_url }}" target="_blank" class="quick-pill pill-instagram">
+                    <i class="fa-brands fa-instagram"></i>
+                    Instagram
+                </a>
+            @endif
+            @if($settings->whatsapp_number)
+                <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings->whatsapp_number) }}" target="_blank" class="quick-pill pill-whatsapp">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    WhatsApp
+                </a>
+            @endif
+            @if($settings->google_map_url)
+                <a href="{{ $settings->google_map_url }}" target="_blank" class="quick-pill pill-map">
+                    <i class="fa-solid fa-location-dot"></i>
+                    Konumu Göster
+                </a>
+            @endif
+            @if($settings->telefon)
+                <a href="tel:{{ $settings->telefon }}" class="quick-pill pill-phone">
+                    <i class="fa-solid fa-phone"></i>
+                    {{ $settings->telefon }}
+                </a>
+            @endif
+        </div>
+        @endif
+
+        <main class="bento-grid" id="menu-bolumu">
             @foreach($mainCategories as $index => $kategori)
                 <a href="{{ route('menu.show', urlencode($kategori->anaGrup)) }}" class="bento-card">
                     @if($kategori->anaGrupResimPath && file_exists(storage_path('app/public/' . $kategori->anaGrupResimPath)))
@@ -381,34 +556,6 @@
 
     <!-- İnce Koyu Footer -->
     <div class="dark-thin-footer">
-        
-        <!-- İnce Yazılı İletişim Bilgileri -->
-        @if($settings && ($settings->telefon || $settings->whatsapp_number || $settings->instagram_url || $settings->adres || $settings->wifi_ssid))
-            <div class="footer-contacts">
-                @if($settings->telefon)
-                    <a href="tel:{{ $settings->telefon }}"><i class="fa-solid fa-phone"></i> {{ $settings->telefon }}</a>
-                @endif
-                @if($settings->whatsapp_number)
-                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $settings->whatsapp_number) }}" target="_blank"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-                @endif
-                @if($settings->instagram_url)
-                    <a href="{{ $settings->instagram_url }}" target="_blank"><i class="fa-brands fa-instagram"></i> Instagram</a>
-                @endif
-                @if($settings->adres)
-                    <span><i class="fa-solid fa-map-pin"></i> {{ $settings->adres }}</span>
-                @endif
-                @if($settings->google_map_url)
-                    <a href="{{ $settings->google_map_url }}" target="_blank"><i class="fa-solid fa-location-dot"></i> Harita</a>
-                @endif
-                @if($settings->google_review_url)
-                    <a href="{{ $settings->google_review_url }}" target="_blank"><i class="fa-solid fa-star" style="color: #fbbf24;"></i> Yorum Yap</a>
-                @endif
-                @if($settings->wifi_ssid)
-                    <span><i class="fa-solid fa-wifi"></i> Wi-Fi: {{ $settings->wifi_ssid }} @if($settings->wifi_password) / Şifre: {{ $settings->wifi_password }} @endif</span>
-                @endif
-            </div>
-            <div class="footer-divider"></div>
-        @endif
 
         <!-- En Alt Şerit -->
         <div class="footer-bottom">
@@ -447,9 +594,28 @@
     <input type="hidden" id="session-qrcode" value="{{ $qrcode ?? (session('current_qrcode') ?? '') }}">
 
     <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let currentQr = document.getElementById('session-qrcode') ? document.getElementById('session-qrcode').value : '';
+            let serverTableName = document.getElementById('home-table-name') ? document.getElementById('home-table-name').textContent.trim() : '';
+            
+            if (currentQr && serverTableName) {
+                localStorage.setItem('menu_qrcode', currentQr);
+                localStorage.setItem('menu_table_name', serverTableName);
+            } else if (!currentQr && localStorage.getItem('menu_qrcode')) {
+                if (document.getElementById('session-qrcode')) {
+                    document.getElementById('session-qrcode').value = localStorage.getItem('menu_qrcode');
+                }
+                if (document.getElementById('home-table-name')) {
+                    let tName = localStorage.getItem('menu_table_name') || 'Masa';
+                    document.getElementById('home-table-name').textContent = tName;
+                    document.getElementById('home-table-badge').style.display = 'inline-flex';
+                }
+            }
+        });
+
         function callWaiterNew(e) {
             e.preventDefault();
-            let qr = document.getElementById('session-qrcode').value;
+            let qr = document.getElementById('session-qrcode').value || localStorage.getItem('menu_qrcode');
             
             if(!qr) {
                 let err = document.getElementById('waiter-error');

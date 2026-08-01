@@ -132,6 +132,27 @@
     .badge-dolu { background: #fef2f2; color: #ef4444; }
     .badge-bos { background: #f0fdf4; color: #22c55e; }
 
+    @keyframes alertPulse {
+        0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); transform: scale(1); }
+        70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); transform: scale(1.02); }
+        100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); transform: scale(1); }
+    }
+    .garson-cagri-rozet {
+        background: linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+        color: white;
+        padding: 8px 12px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 30px 10px 0 10px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        animation: alertPulse 2s infinite;
+        position: relative;
+        z-index: 5;
+    }
+
     .header-actions {
         display: flex;
         justify-content: space-between;
@@ -349,7 +370,24 @@
                 </form>
             </div>
 
-            <div style="cursor: pointer; padding: 1.5rem 1rem 0.5rem;" onclick="openMasaModal('{{ $masa->isim }}', {{ $masa->id }}, {{ $masa->durum }}, {{ $masa->guncel_tutar }})">
+            @php
+                $aktifCagri = isset($cagrilar) ? ($cagrilar->where('Masa_id', $masa->id)->first() ?? $cagrilar->where('Masaismi', $masa->isim)->first()) : null;
+            @endphp
+            @if($aktifCagri)
+                <div class="garson-cagri-rozet">
+                    <span style="display: flex; align-items: center; gap: 6px;">
+                        <i class="fa-solid fa-bell fa-bounce" style="font-size: 1.1rem;"></i> Garson Çağrıldı!
+                    </span>
+                    <form action="{{ route('admin.masalar.completeCall', $aktifCagri->id) }}" method="POST" style="margin: 0;" title="Çağrıyı Kapat (İlgilenildi)">
+                        @csrf
+                        <button type="submit" style="background: #ffffff; color: #ea580c; border: none; border-radius: 6px; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; transition: 0.2s;">
+                            <i class="fa-solid fa-check"></i>
+                        </button>
+                    </form>
+                </div>
+            @endif
+
+            <div style="cursor: pointer; padding: {{ $aktifCagri ? '0.75rem' : '1.5rem' }} 1rem 0.5rem;" onclick="openMasaModal('{{ $masa->isim }}', {{ $masa->id }}, {{ $masa->durum }}, {{ $masa->guncel_tutar }})">
                 <div class="masa-icon">
                     <i class="fa-solid fa-chair"></i>
                 </div>

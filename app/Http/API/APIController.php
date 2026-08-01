@@ -35,6 +35,15 @@ class APIController extends Controller
         return $this->qrCodeRepo->AddCallToTable($qrCode);
     }
 
+    public function GetActiveWaiterCalls(Request $request)
+    {
+        $pendingCalls = \App\Models\QrCodeCagri::where('Status', 0)->get();
+        if ($request->input('mark_as_pulled') == 1 && $pendingCalls->count() > 0) {
+            \App\Models\QrCodeCagri::where('Status', 0)->update(['Status' => 1]);
+        }
+        return response()->json(['success' => true, 'cagrilar' => $pendingCalls]);
+    }
+
     public function GetLocaleLang()
     {
 

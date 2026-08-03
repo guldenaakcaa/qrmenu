@@ -31,36 +31,26 @@
             display: flex;
             flex-direction: column;
             position: relative;
+            background: var(--bg-gradient);
         }
 
-       /* Arka Plan Görseli */
+       /* Karşılama Görseli - Yarıdan İtibaren Yavaşça Silinerek Zemine Harmanlanır */
+       @if($settings && $settings->karsilama_gorsel)
         body::before {
             content: '';
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0; left: 0; width: 100%; height: 92vh;
             z-index: -2;
             pointer-events: none;
-            @if($settings && $settings->karsilama_gorsel)
-                background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') center/cover no-repeat;
-            @else
-                background: var(--bg-gradient);
-            @endif
+            background: url('{{ asset("storage/" . $settings->karsilama_gorsel) }}') center/cover no-repeat;
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 25%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 75%, rgba(0,0,0,0) 98%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,1) 25%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 75%, rgba(0,0,0,0) 98%);
         }
+        @endif
 
-        /* Silikleştirme / Beyazlatma Efekti (Eski Haline Döndü) */
+        /* Tül / Silikleştirici Blur Tamamen Kaldırıldı */
         body::after {
-            content: '';
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
-            pointer-events: none;
-            @if($settings && $settings->karsilama_gorsel)
-                background: rgba(244, 249, 249, 0.88); 
-                backdrop-filter: blur(8px); 
-                -webkit-backdrop-filter: blur(8px);
-            @else
-                background: transparent;
-            @endif
+            display: none !important;
         }
 
         .app-container {
@@ -452,7 +442,8 @@
 <body>
 
     <div class="app-container">
-        <header style="{{ ($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) ? 'margin-top: 2rem;' : 'margin-top: 0.8rem;' }}">
+        <!-- Şirket adı vb. resim varsa sayfanın yarısından (silikleşmeye başladığı yerde - 48vh) başlar -->
+        <header style="{{ ($settings && $settings->karsilama_gorsel) ? 'margin-top: 34vh;' : (($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) ? 'margin-top: 3rem;' : 'margin-top: 2rem;') }}">
             <!-- Tıklanabilir Logo & Başlık -->
             <a href="{{ route('home') }}" class="brand-link">
                 @if($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo)))
@@ -487,7 +478,8 @@
                     </button>
                     <input type="text" name="q" placeholder="Lezzet arayın..." required>
                 </form>
-                <a href="{{ $mainCategories->count() > 0 ? route('menu.show', urlencode($mainCategories->first()->anaGrup)) : '#' }}" class="btn-goto-menu-inner" title="Menüye Git">
+                @php $currentMasaParam = $qrcode ? '?masa=' . $qrcode : (session('current_qrcode') ? '?masa=' . session('current_qrcode') : ''); @endphp
+                <a href="{{ $mainCategories->count() > 0 ? route('menu.show', urlencode($mainCategories->first()->anaGrup)) . $currentMasaParam : '#' }}" class="btn-goto-menu-inner" title="Menüye Git">
                     <i class="fa-solid fa-utensils"></i>
                     <span>Menüye Git</span>
                 </a>
@@ -535,23 +527,6 @@
             @endif
         </div>
         @endif
-
-        <main class="bento-grid" id="menu-bolumu">
-            @foreach($mainCategories as $index => $kategori)
-                <a href="{{ route('menu.show', urlencode($kategori->anaGrup)) }}" class="bento-card">
-                    @if($kategori->anaGrupResimPath && file_exists(storage_path('app/public/' . $kategori->anaGrupResimPath)))
-                        <div class="card-bg-img" style="background-image: url('{{ asset('storage/' . $kategori->anaGrupResimPath) }}');"></div>
-                    @else
-                        <div class="card-bg-img" style="background: linear-gradient(45deg, #a1c4fd, #c2e9fb);"></div>
-                    @endif
-                    <div class="card-overlay"></div>
-                    
-                    <div class="card-content">
-                        <h3 class="card-title">{{ mb_strtoupper($kategori->anaGrup, 'UTF-8') }}</h3>
-                    </div>
-                </a>
-            @endforeach
-        </main>
     </div>
 
     <!-- İnce Koyu Footer -->
@@ -572,15 +547,50 @@
             <i class="fa-solid fa-house"></i>
             <span>Ana Sayfa</span>
         </a>
-        <a href="#" onclick="callWaiterNew(event)" style="color: #ea580c;">
-            <i class="fa-solid fa-bell"></i>
-            <span>Garson Çağır</span>
+        @php $currentMasaParam = $qrcode ? '?masa=' . $qrcode : (session('current_qrcode') ? '?masa=' . session('current_qrcode') : ''); @endphp
+        <a href="{{ $mainCategories->count() > 0 ? route('menu.show', urlencode($mainCategories->first()->anaGrup)) . $currentMasaParam : '#' }}" style="color: #8B5A2B;">
+            <i class="fa-solid fa-utensils"></i>
+            <span>Menü</span>
         </a>
         <a href="{{ route('admin.dashboard') }}">
             <i class="fa-solid fa-user-lock"></i>
             <span>Admin</span>
         </a>
     </div>
+
+    <!-- Sol Altta Sabit ve Tam Duyarlı (Responsive) Yüzen Şık Garson Çağrısı Butonu (FAB) -->
+    <a href="javascript:void(0)" onclick="callWaiterNew(event)" id="fab-waiter-home" title="Garson Çağır">
+        <i class="fa-solid fa-bell-concierge"></i>
+    </a>
+    <style>
+        #fab-waiter-home {
+            position: fixed;
+            bottom: clamp(75px, 15vh, 90px);
+            left: clamp(10px, 3.5vw, 25px);
+            z-index: 9990;
+            background: linear-gradient(135deg, #9c7b5c, #7d5e41);
+            width: clamp(42px, 11vw, 62px);
+            height: clamp(42px, 11vw, 62px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            box-shadow: 0 6px 20px rgba(125, 94, 65, 0.45);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #fab-waiter-home i {
+            font-size: clamp(1.15rem, 3.8vw, 1.65rem);
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));
+        }
+        #fab-waiter-home:hover { transform: scale(1.08); box-shadow: 0 10px 25px rgba(125, 94, 65, 0.65); }
+        @media (min-width: 769px) {
+            #fab-waiter-home { bottom: 30px; left: 30px; width: 62px; height: 62px; }
+            #fab-waiter-home i { font-size: 1.65rem; }
+        }
+    </style>
 
     <!-- Garson Çağır Modal / Bildirim -->
     <div id="waiter-notification" style="display:none; position:fixed; top:20px; left:50%; transform:translateX(-50%); background:#22c55e; color:white; padding:12px 24px; border-radius:30px; font-weight:600; font-size:0.95rem; z-index:9999; box-shadow:0 10px 25px rgba(34,197,94,0.3); align-items:center; gap:8px;">
@@ -601,14 +611,12 @@
             if (currentQr && serverTableName) {
                 localStorage.setItem('menu_qrcode', currentQr);
                 localStorage.setItem('menu_table_name', serverTableName);
-            } else if (!currentQr && localStorage.getItem('menu_qrcode')) {
-                if (document.getElementById('session-qrcode')) {
-                    document.getElementById('session-qrcode').value = localStorage.getItem('menu_qrcode');
-                }
-                if (document.getElementById('home-table-name')) {
-                    let tName = localStorage.getItem('menu_table_name') || 'Masa';
-                    document.getElementById('home-table-name').textContent = tName;
-                    document.getElementById('home-table-badge').style.display = 'inline-flex';
+            } else {
+                // Eğer sayfa masalı olmayan yalın linkten açıldıysa asla eski masayı zorla ekrana yazma!
+                localStorage.removeItem('menu_qrcode');
+                localStorage.removeItem('menu_table_name');
+                if (document.getElementById('home-table-badge')) {
+                    document.getElementById('home-table-badge').style.display = 'none';
                 }
             }
         });

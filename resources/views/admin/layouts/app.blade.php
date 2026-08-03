@@ -92,19 +92,41 @@
         .stat-icon.purple { background-color: #faf5ff; color: #a855f7; }
         .stat-info h3 { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 0.5rem; font-weight: 500; }
         .stat-info p { font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin: 0; }
+        /* Sidebar Overlay (Mobil) */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 99; backdrop-filter: blur(2px); }
+        .sidebar-overlay.active { display: block; }
+
         @media (max-width: 768px) {
+            body { overflow-x: hidden; }
             .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; width: 260px; }
             .sidebar.active { transform: translateX(0); box-shadow: 4px 0 15px rgba(0,0,0,0.2); }
-            .main-content { margin-left: 0; padding: 1rem; gap: 1rem; }
+            .main-content { margin-left: 0; padding: 0.75rem; gap: 1rem; width: 100%; max-width: 100vw; overflow-x: hidden; }
             .mobile-toggle { display: block !important; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .top-header { padding: 1rem; flex-wrap: wrap; }
-            .top-header h1 { font-size: 1.1rem; }
+            .stats-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+            .stat-card { padding: 1rem; gap: 0.75rem; }
+            .stat-icon { width: 42px; height: 42px; font-size: 1.25rem; border-radius: 10px; }
+            .stat-info h3 { font-size: 0.75rem; }
+            .stat-info p { font-size: 1.15rem; }
+            .top-header { padding: 0.75rem 1rem; flex-wrap: wrap; }
+            .top-header h1 { font-size: 1rem; }
             .card { padding: 1rem; }
             .table-container { padding: 0.75rem; }
-            th, td { padding: 0.75rem 0.5rem; font-size: 0.8rem; white-space: nowrap; }
-            th { font-size: 0.75rem; }
+            .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            th, td { padding: 0.6rem 0.5rem; font-size: 0.8rem; white-space: nowrap; }
+            th { font-size: 0.7rem; }
             .action-btns { gap: 4px; }
+            .btn { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+            .kasa-grid { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+            .kasa-item { padding: 1rem !important; }
+            .kasa-item .amount { font-size: 1.25rem !important; }
+            .masalar-grid { grid-template-columns: 1fr 1fr !important; gap: 0.75rem !important; }
+            .header-actions { flex-direction: column; gap: 8px !important; align-items: stretch !important; }
+            .header-actions h3 { font-size: 1.1rem !important; }
+        }
+        @media (max-width: 420px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .kasa-grid { grid-template-columns: 1fr !important; }
+            .masalar-grid { grid-template-columns: 1fr !important; }
         }
     </style>
 </head>
@@ -115,7 +137,7 @@
         <div class="sidebar-header">
             <i class="fa-solid fa-qrcode"></i>
             <h2>QR Menü</h2>
-            <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.remove('active')" style="display: none; margin-left: auto; background: none; border: none; font-size: 1.25rem; color: var(--white); cursor: pointer;">
+            <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.remove('active'); document.getElementById('sidebarOverlay').classList.remove('active');" style="display: none; margin-left: auto; background: none; border: none; font-size: 1.25rem; color: var(--white); cursor: pointer;">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
@@ -139,10 +161,6 @@
             <a href="{{ route('admin.masalar') }}" class="nav-item {{ request()->routeIs('admin.masalar') ? 'active' : '' }}">
                 <i class="fa-solid fa-utensils"></i>
                 <span>Masalar & Kasa</span>
-            </a>
-            <a href="{{ route('admin.qr') }}" class="nav-item {{ request()->routeIs('admin.qr') ? 'active' : '' }}">
-                <i class="fa-solid fa-expand"></i>
-                <span>QR Kodlar</span>
             </a>
             @if(session('admin_role') == '0')
             <a href="{{ route('admin.settings') }}" class="nav-item {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
@@ -172,12 +190,15 @@
         </nav>
     </aside>
 
+    <!-- Sidebar Overlay (Mobil) -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="document.querySelector('.sidebar').classList.remove('active'); this.classList.remove('active');"></div>
+
     <!-- Main Content -->
     <main class="main-content">
         <!-- Top Header -->
         <header class="top-header">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.add('active')" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main);">
+                <button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.add('active'); document.getElementById('sidebarOverlay').classList.add('active');" style="display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-main);">
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <h1>@yield('header_title', 'Genel Bakış')</h1>
@@ -187,6 +208,73 @@
                 <div class="user-avatar">A</div>
             </div>
         </header>
+
+        <!-- Patron Talebi: Tüm Yönetim Paneli Sayfalarında Görünür Garson Çağrısı Merkezi -->
+        @php
+            $globalCagrilar = \App\Models\QrCodeCagri::where('Status', 0)->orderBy('Cagri_zamani', 'desc')->get();
+        @endphp
+        <div id="global-waiter-banner" style="display: {{ $globalCagrilar->count() > 0 ? 'block' : 'none' }}; margin-bottom: 1.5rem; width: 100%; box-sizing: border-box; max-width: 100%;">
+            <div class="waiter-banner-box" style="background: #ffffff; border: 1px solid #e2e8f0; border-left: 6px solid #f59e0b; border-radius: 14px; padding: clamp(0.85rem, 2.5vw, 1.25rem) clamp(0.85rem, 3vw, 1.5rem); box-shadow: 0 14px 35px -5px rgba(245, 158, 11, 0.18), 0 4px 10px -3px rgba(0, 0, 0, 0.05); transition: all 0.3s ease; width: 100%; box-sizing: border-box;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 0.85rem; margin-bottom: 1rem; flex-wrap: wrap; gap: 10px; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; align-items: center; gap: clamp(8px, 2.5vw, 14px); flex: 1 1 min-content;">
+                        <div style="width: clamp(38px, 9vw, 44px); height: clamp(38px, 9vw, 44px); min-width: 38px; border-radius: 12px; background: linear-gradient(135deg, #fef3c7, #fde68a); color: #d97706; display: flex; align-items: center; justify-content: center; font-size: clamp(1.15rem, 3.5vw, 1.4rem); box-shadow: 0 4px 12px rgba(217, 119, 6, 0.22); border: 1px solid rgba(217, 119, 6, 0.2); flex-shrink: 0;">
+                            <i class="fa-solid fa-bell-concierge" style="animation: bellShake 2s infinite cubic-bezier(.36,.07,.19,.97);"></i>
+                        </div>
+                        <div style="min-width: 0;">
+                            <h3 style="margin: 0; font-size: clamp(0.95rem, 3vw, 1.15rem); font-weight: 800; color: #0f172a; letter-spacing: 0.2px; line-height: 1.25;">Canlı Garson Çağrı Departmanı</h3>
+                            <span style="font-size: clamp(0.75rem, 2vw, 0.84rem); color: #64748b; font-weight: 500; display: block; margin-top: 2px; line-height: 1.3;">Masa sipariş veya destek için personelinizin ilgisini bekliyor</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span id="global-waiter-count" style="background: #fffdf5; color: #b45309; border: 1.5px solid #fcd34d; font-weight: 800; padding: 6px 14px; border-radius: 25px; font-size: clamp(0.78rem, 2.5vw, 0.88rem); display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(245, 158, 11, 0.1); white-space: nowrap;">
+                            <span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block; animation: ping 1.5s infinite; flex-shrink: 0;"></span>
+                            Bekleyen Çağrı: {{ $globalCagrilar->count() }}
+                        </span>
+                    </div>
+                </div>
+                
+                <div id="global-waiter-list" style="display: flex; flex-wrap: wrap; gap: 1rem; width: 100%; box-sizing: border-box;">
+                    @foreach($globalCagrilar as $cg)
+                        <div class="waiter-card-item" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 0.85rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.85rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(0,0,0,0.02); width: 310px; max-width: 100%; box-sizing: border-box; flex: 0 0 auto;">
+                            <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                <div style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: #ffffff; color: #334155; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; border: 1px solid #cbd5e1; box-shadow: 0 2px 5px rgba(0,0,0,0.04); flex-shrink: 0;">
+                                    <i class="fa-solid fa-chair" style="color: #64748b;"></i>
+                                </div>
+                                <div style="min-width: 0;">
+                                    <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        {{ $cg->Masaismi ?: 'Masa ' . $cg->Masa_id }}
+                                    </div>
+                                    <div style="font-size: 0.78rem; color: #e11d48; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-top: 2px; white-space: nowrap;">
+                                        <i class="fa-solid fa-bolt" style="font-size: 0.75rem; animation: pulse 1s infinite;"></i> Garson Bekliyor
+                                    </div>
+                                </div>
+                            </div>
+                            <form action="{{ route('admin.masalar.completeCall', $cg->id) }}" method="POST" style="margin: 0; flex-shrink: 0;">
+                                @csrf
+                                <button type="submit" class="btn-complete-call" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
+                                    <span>İlgilenildi</span>
+                                    <i class="fa-solid fa-check"></i>
+                                </button>
+                            </form>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+        <style>
+            @keyframes bellShake {
+                0%, 100% { transform: rotate(0); }
+                10%, 30%, 50%, 70%, 90% { transform: rotate(-14deg); }
+                20%, 40%, 60%, 80% { transform: rotate(14deg); }
+            }
+            @keyframes ping {
+                0% { transform: scale(1); opacity: 1; }
+                75%, 100% { transform: scale(1.6); opacity: 0; }
+            }
+            @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+            .waiter-card-item:hover { transform: translateY(-3px); box-shadow: 0 10px 22px rgba(245, 158, 11, 0.12) !important; border-color: #fbd38d !important; background: #fff !important; }
+            .btn-complete-call:hover { transform: scale(1.05); box-shadow: 0 6px 18px rgba(16, 185, 129, 0.45) !important; background: linear-gradient(135deg, #059669, #047857) !important; }
+        </style>
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -274,6 +362,60 @@
                     });
                 });
             });
+
+            // 10 saniyede bir Canlı Garson Çağrılarını tüm admin sayfalarında kontrol et
+            setInterval(function() {
+                fetch("{{ route('admin.masalar.liveCagrilarJson') }}", {
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    const banner = document.getElementById('global-waiter-banner');
+                    const list = document.getElementById('global-waiter-list');
+                    const countBadge = document.getElementById('global-waiter-count');
+                    if (!banner || !list || !countBadge) return;
+
+                    if (data && data.length > 0) {
+                        banner.style.display = 'block';
+                        countBadge.innerHTML = `<span style="width: 8px; height: 8px; border-radius: 50%; background: #f59e0b; display: inline-block; animation: ping 1.5s infinite; flex-shrink: 0;"></span> Bekleyen Çağrı: ${data.length}`;
+                        
+                        let html = '';
+                        let token = "{{ csrf_token() }}";
+                        data.forEach(cg => {
+                            let masaAd = cg.Masaismi ? cg.Masaismi : ('Masa ' + cg.Masa_id);
+                            let actionUrl = "{{ url('admin/masalar/cagri-tamamla') }}/" + cg.id;
+                            html += `
+                            <div class="waiter-card-item" style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 0.85rem 1.15rem; display: flex; align-items: center; justify-content: space-between; gap: 0.85rem; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 2px 6px rgba(0,0,0,0.02); width: 310px; max-width: 100%; box-sizing: border-box; flex: 0 0 auto;">
+                                <div style="display: flex; align-items: center; gap: 12px; min-width: 0;">
+                                    <div style="width: 40px; height: 40px; min-width: 40px; border-radius: 50%; background: #ffffff; color: #334155; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; border: 1px solid #cbd5e1; box-shadow: 0 2px 5px rgba(0,0,0,0.04); flex-shrink: 0;">
+                                        <i class="fa-solid fa-chair" style="color: #64748b;"></i>
+                                    </div>
+                                    <div style="min-width: 0;">
+                                        <div style="font-size: 1.05rem; font-weight: 800; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                            ${masaAd}
+                                        </div>
+                                        <div style="font-size: 0.78rem; color: #e11d48; font-weight: 700; display: flex; align-items: center; gap: 4px; margin-top: 2px; white-space: nowrap;">
+                                            <i class="fa-solid fa-bolt" style="font-size: 0.75rem; animation: pulse 1s infinite;"></i> Garson Bekliyor
+                                        </div>
+                                    </div>
+                                </div>
+                                <form action="${actionUrl}" method="POST" style="margin: 0; flex-shrink: 0;">
+                                    <input type="hidden" name="_token" value="${token}">
+                                    <button type="submit" class="btn-complete-call" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3); transition: all 0.2s; white-space: nowrap;">
+                                        <span>İlgilenildi</span>
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
+                                </form>
+                            </div>`;
+                        });
+                        list.innerHTML = html;
+                    } else {
+                        banner.style.display = 'none';
+                        list.innerHTML = '';
+                    }
+                })
+                .catch(err => console.error("Çağrı denetim hatası:", err));
+            }, 10000);
         });
     </script>
 </body>

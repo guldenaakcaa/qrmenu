@@ -88,6 +88,17 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'Garson çağrısı ilgilenildi olarak işaretlendi.');
     }
 
+    public function liveCagrilarJson()
+    {
+        if (!session('admin_id') && !session('admin_role')) {
+            return response()->json([]);
+        }
+        $cagrilar = \App\Models\QrCodeCagri::where('Status', 0)
+                        ->orderBy('Cagri_zamani', 'desc')
+                        ->get();
+        return response()->json($cagrilar);
+    }
+
     public function storeMasa(\Illuminate\Http\Request $request)
     {
         if (session('admin_role') !== '0') return redirect()->route('admin.dashboard')->with('error', 'Yetkisiz erişim.');

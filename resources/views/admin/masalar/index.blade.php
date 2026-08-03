@@ -261,6 +261,35 @@
         text-align: left;
     }
     .siparis-table th { background: #f8fafc; font-weight: 600; color: #475569; }
+
+    /* ─── Masalar Sayfası Mobil Responsive ─── */
+    @media (max-width: 768px) {
+        .kasa-widget { padding: 1rem; margin-bottom: 1rem; border-radius: 12px; }
+        .kasa-widget h2 { font-size: 1.1rem; }
+        .kasa-widget > div:first-child { flex-direction: column; gap: 10px; }
+        .date-filter-form { width: 100%; justify-content: space-between; }
+        .kasa-grid { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+        .kasa-item { padding: 0.75rem; border-radius: 8px; }
+        .kasa-item h4 { font-size: 0.75rem; margin-bottom: 0.25rem; }
+        .kasa-item .amount { font-size: 1.1rem; }
+        .masalar-grid { grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+        .masa-card { padding: 0.75rem; border-radius: 12px; }
+        .masa-icon { font-size: 1.75rem; margin-bottom: 0.5rem; }
+        .masa-name { font-size: 0.95rem; }
+        .masa-amount { font-size: 1rem; }
+        .header-actions { flex-direction: column; gap: 8px; align-items: stretch; }
+        .header-actions h3 { font-size: 1.05rem; text-align: center; }
+        .header-actions > div { display: flex; gap: 8px; justify-content: center; }
+        .garson-cagri-rozet { margin: 15px 0 0 0; font-size: 0.78rem; padding: 6px 10px; }
+        .modal-content { padding: 1.25rem; width: 95%; }
+        .siparis-table th, .siparis-table td { padding: 0.5rem 0.4rem; font-size: 0.78rem; }
+        #kasaDetayContainer { padding: 0.5rem; }
+        #kasaDetayContainer table th, #kasaDetayContainer table td { font-size: 0.75rem; padding: 0.4rem; }
+    }
+    @media (max-width: 420px) {
+        .kasa-grid { grid-template-columns: 1fr; }
+        .masalar-grid { grid-template-columns: 1fr; }
+    }
 </style>
 
 <div class="kasa-widget">

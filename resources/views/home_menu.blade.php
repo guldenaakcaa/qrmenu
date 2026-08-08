@@ -472,7 +472,7 @@
         }
         
         /* Desktop Header Margin Classes */
-        header.header-bg { margin-top: 34vh; }
+        header.header-bg { margin-top: 22vh; }
         header.header-logo { margin-top: 3rem; }
         header.header-normal { margin-top: 2rem; }
     </style>

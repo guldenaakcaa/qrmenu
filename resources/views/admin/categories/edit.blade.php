@@ -14,7 +14,7 @@
             <select id="AnaGrup" name="AnaGrup" class="form-control">
                 <option value="">-- Bağımsız / Ana Grup Yok --</option>
                 @foreach($mainCategories as $mg)
-                    <option value="{{ $mg->anaGrup }}" {{ $category->AnaGrup == $mg->anaGrup ? 'selected' : '' }}>{{ $mg->anaGrup }}</option>
+                    <option value="{{ $mg->id }}" {{ $category->AnaGrup == $mg->id || $category->AnaGrup == $mg->anaGrup ? 'selected' : '' }}>{{ $mg->anaGrup }}</option>
                 @endforeach
             </select>
         </div>

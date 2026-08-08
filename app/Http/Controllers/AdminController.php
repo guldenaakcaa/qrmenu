@@ -65,6 +65,38 @@ class AdminController extends Controller
         $seciliTarih = $request->get('tarih', date('Y-m-d'));
 
         $masalar = \App\Models\Masa::all();
+
+        // Eğer masaüstünden eklenen ve slug veya karekodu eksik olan masalar varsa otomatik kilit kır ve kurgula
+        foreach ($masalar as $masa) {
+            $qrKart = \App\Models\QrCodeKart::where('Masa_id', $masa->id)->first();
+            if (empty($masa->slug) || !$qrKart) {
+                $slugBase = \Illuminate\Support\Str::slug($masa->isim);
+                if (empty($slugBase)) $slugBase = 'masa';
+                $qrCode = !empty($masa->slug) ? $masa->slug : ($slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4)));
+                while (empty($masa->slug) && (\App\Models\QrCodeKart::where('QRCode', $qrCode)->exists() || \App\Models\Masa::where('slug', $qrCode)->exists())) {
+                    $qrCode = $slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4));
+                }
+                if (empty($masa->slug)) {
+                    $masa->slug = $qrCode;
+                    $masa->save();
+                }
+                if (!$qrKart) {
+                    \App\Models\QrCodeKart::create([
+                        'QRCode' => $masa->slug,
+                        'Cari_id' => 1,
+                        'QRTur' => 1,
+                        'KullaniciParola' => '',
+                        'Masa_id' => $masa->id,
+                        'Masaismi' => $masa->isim,
+                        'MusteriAd' => '',
+                        'KullaniciAd' => '',
+                        'Personel_id' => 0,
+                        'Status' => 1
+                    ]);
+                }
+            }
+        }
+
         $masa_siparisleri = \App\Models\MasaSiparis::all()->groupBy('masa_isim');
         
         // QR kodları masalara göre al

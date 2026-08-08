@@ -10,5 +10,5 @@ class MasaSiparis extends Model
     use HasFactory;
 
     protected $table = 'masa_siparis';
-    protected $fillable = ['masa_isim', 'urun_adi', 'adet', 'fiyat', 'siparis_saati'];
+    protected $fillable = ['masa_isim', 'masa_id', 'session_id', 'urun_adi', 'adet', 'fiyat', 'siparis_saati'];
 }

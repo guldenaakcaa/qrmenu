@@ -435,6 +435,7 @@
                                  'is_drink' => $isFeatDrink ? 1 : 0,
                                  'has_lactose' => $urun->has_lactose ?? 0,
                                  'has_gluten' => $urun->has_gluten ?? 0,
+                                 'alerjenler' => $urun->alerjenler ?? '',
                                  'malzemeler' => $urun->malzeme_listesi ?? [],
                                  'kalori' => $urun->kalori ?? '',
                                  'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
@@ -453,6 +454,9 @@
                             </div>
                             <div class="featured-info">
                                 <h3 class="featured-name">{{ mb_strtoupper($urun->UrunAdKisa ?? $urun->UrunAd, 'UTF-8') }}</h3>
+                                @if(!empty($urun->alerjenler))
+                                    <div style="margin-top: 4px; margin-bottom: 4px;"><span class="badge" style="background: #ef4444; color: white; border: none; padding: 3px 6px; font-size: 0.7rem;"><i class="fa-solid fa-triangle-exclamation"></i> {{ $urun->alerjenler }}</span></div>
+                                @endif
                                 <div class="featured-price">₺{{ number_format((float)$urun->FixFiyat, 2, ',', '.') }}</div>
                             </div>
                         </div>
@@ -487,6 +491,7 @@
                                      'is_drink' => $isDrink ? 1 : 0,
                                      'has_lactose' => $urun->has_lactose ?? 0,
                                      'has_gluten' => $urun->has_gluten ?? 0,
+                                     'alerjenler' => $urun->alerjenler ?? '',
                                      'malzemeler' => $urun->malzeme_listesi ?? [],
                                      'kalori' => $urun->kalori ?? '',
                                      'hazirlanma_suresi' => $urun->hazirlanma_suresi ?? '',
@@ -509,6 +514,9 @@
                                         <h3 class="product-name">{{ $urun->UrunAd }}</h3>
                                         <!-- Hap (Badge) Etiketler -->
                                         <div class="badge-container">
+                                            @if(!empty($urun->alerjenler))
+                                                <span class="badge" style="background: #ef4444; color: white; border: none; padding: 4px 8px; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation"></i> {{ $urun->alerjenler }}</span>
+                                            @endif
                                             @if($urun->has_gluten == 1)
                                                 <span class="badge"><i class="fa-solid fa-wheat-awn" style="color: #f59e0b;"></i> Gluten</span>
                                             @endif
@@ -718,6 +726,24 @@
             }
         }
 
+        // Haversine Formülü
+        function getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+            var R = 6371000;
+            var dLat = deg2rad(lat2 - lat1);
+            var dLon = deg2rad(lon2 - lon1);
+            var a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            var d = R * c;
+            return d;
+        }
+
+        function deg2rad(deg) {
+            return deg * (Math.PI / 180)
+        }
+
         function callWaiter() {
             let qrCode = (document.getElementById('qrcode_val') ? document.getElementById('qrcode_val').value : '') || localStorage.getItem('menu_qrcode') || '';
             if (!qrCode) {
@@ -728,14 +754,73 @@
                 return;
             }
 
+            let isGpsActive = {{ isset($settings->is_gps_check_active) && $settings->is_gps_check_active ? 'true' : 'false' }};
+            
+            if (isGpsActive) {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(position) {
+                        let userLat = position.coords.latitude;
+                        let userLng = position.coords.longitude;
+                        let resLat = {{ $settings->latitude ?? '0' }};
+                        let resLng = {{ $settings->longitude ?? '0' }};
+                        
+                        let distance = getDistanceFromLatLonInM(userLat, userLng, resLat, resLng);
+                        
+                        if (distance > 100) {
+                            let err = document.getElementById('waiter-error');
+                            err.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Masada olmadığınız için garson çağıramazsınız! (Mesafe: ' + Math.round(distance) + 'm)';
+                            err.style.display = 'flex';
+                            setTimeout(() => { err.style.display = 'none'; }, 3500);
+                            return;
+                        } else {
+                            executeWaiterCall(qrCode);
+                        }
+                    }, function(error) {
+                        let err = document.getElementById('waiter-error');
+                        err.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Konum izni vermediğiniz için işlem reddedildi!';
+                        err.style.display = 'flex';
+                        setTimeout(() => { err.style.display = 'none'; }, 3500);
+                    });
+                } else {
+                    alert("Tarayıcınız konum özelliğini desteklemiyor.");
+                }
+            } else {
+                executeWaiterCall(qrCode);
+            }
+        }
+
+        function executeWaiterCall(qrCode) {
             fetch("/api/v1/call/waiter/" + qrCode, {
                 method: "POST",
+                credentials: "same-origin",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                }
+                },
+                body: JSON.stringify({
+                    qr_scan_time: '{{ session("qr_scan_time") }}'
+                })
             })
-            .then(res => res.text())
+            .then(async res => {
+                let text = await res.text();
+                
+                // HTTP 429 Too Many Requests (Rate Limit) kontrolü
+                if (res.status === 429) {
+                    throw new Error("Çok fazla istek gönderdiniz. Lütfen 1 dakika bekleyip tekrar deneyin.");
+                }
+                
+                // HTTP 403 Forbidden (Session Timeout) kontrolü
+                if (res.status === 403) {
+                    try {
+                        let json = JSON.parse(text);
+                        throw new Error(json.message || "Oturum süreniz dolmuştur.");
+                    } catch (e) {
+                        throw new Error("Oturum süreniz dolmuştur. Lütfen masadaki QR kodu tekrar okutunuz.");
+                    }
+                }
+                
+                return text;
+            })
             .then(text => {
                 let notif = document.getElementById('waiter-notification');
                 if (text === "ok") {
@@ -750,9 +835,9 @@
             })
             .catch(err => {
                 let errEl = document.getElementById('waiter-error');
-                errEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Bir hata oluştu.';
+                errEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> ' + (err.message || 'Bir hata oluştu.');
                 errEl.style.display = 'flex';
-                setTimeout(() => { errEl.style.display = 'none'; }, 2500);
+                setTimeout(() => { errEl.style.display = 'none'; }, 4000);
             });
         }
 
@@ -940,6 +1025,9 @@
             
             if (isDrink && urunData.has_lactose == 1) {
                 infoHtml += `<div style="width: 100%; text-align: left; margin-top: 6px; font-size: 0.85rem; color: #64748b; font-weight: 500;"><i class="fa-solid fa-circle-info" style="color: #60a5fa; margin-right: 4px;"></i>Laktozsuz seçeneği bulunmaktadır.</div>`;
+            }
+            if (urunData.alerjenler) {
+                infoHtml += `<div style="width: 100%; text-align: left; margin-top: 6px; font-size: 0.85rem; color: #ef4444; font-weight: 700;"><i class="fa-solid fa-triangle-exclamation" style="margin-right: 4px;"></i>${urunData.alerjenler}</div>`;
             }
             
             document.getElementById('bs-info-chips').innerHTML = infoHtml;

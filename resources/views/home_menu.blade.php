@@ -436,14 +436,57 @@
             .mobile-bottom-nav {
                 display: flex;
             }
+            
+            /* Sıkı Mobil Optimizasyon (Tek Ekrana Sığdırma) */
+            header.header-bg { margin-top: 12vh !important; }
+            header.header-logo { margin-top: 1.5rem !important; }
+            header.header-normal { margin-top: 1.5rem !important; }
+            
+            .brand-logo {
+                max-height: 140px !important;
+                max-width: 180px !important;
+                margin-bottom: 0.5rem !important;
+                border-radius: 16px !important;
+            }
+            
+            h1 { font-size: 1.8rem !important; margin-bottom: 0.2rem !important; }
+            p.hero-text { font-size: 0.9rem !important; margin-top: -0.2rem !important; margin-bottom: 0.8rem !important; }
+            
+            #home-table-badge { 
+                margin-bottom: 1rem !important; 
+                padding: 4px 16px !important; 
+                font-size: 0.85rem !important; 
+            }
+            
+            .quick-links-strip { margin: 0.5rem auto 1rem auto !important; gap: 0.4rem !important; }
+            .quick-pill { padding: 6px 12px !important; font-size: 0.75rem !important; }
+            
+            .unified-search-box { padding: 4px 5px 4px 12px !important; max-width: 90% !important; }
+            .search-form-inner input { padding: 0.5rem 0.4rem 0.5rem 0 !important; font-size: 0.9rem !important; }
+            .btn-goto-menu-inner { padding: 0.6rem 1rem !important; font-size: 0.85rem !important; }
+            
+            #fab-waiter-home { bottom: 85px !important; width: 50px !important; height: 50px !important; left: 15px !important; }
+            #fab-waiter-home i { font-size: 1.3rem !important; }
+            
+            .app-container { justify-content: flex-start; padding-top: 1rem; padding-bottom: 5rem; }
         }
+        
+        /* Desktop Header Margin Classes */
+        header.header-bg { margin-top: 34vh; }
+        header.header-logo { margin-top: 3rem; }
+        header.header-normal { margin-top: 2rem; }
     </style>
 </head>
 <body>
 
     <div class="app-container">
         <!-- Şirket adı vb. resim varsa sayfanın yarısından (silikleşmeye başladığı yerde - 48vh) başlar -->
-        <header style="{{ ($settings && $settings->karsilama_gorsel) ? 'margin-top: 34vh;' : (($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) ? 'margin-top: 3rem;' : 'margin-top: 2rem;') }}">
+        @php 
+            $headerClass = 'header-normal';
+            if ($settings && $settings->karsilama_gorsel) { $headerClass = 'header-bg'; }
+            elseif ($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo))) { $headerClass = 'header-logo'; }
+        @endphp
+        <header class="{{ $headerClass }}">
             <!-- Tıklanabilir Logo & Başlık -->
             <a href="{{ route('home') }}" class="brand-link">
                 @if($settings && $settings->logo && file_exists(storage_path('app/public/' . $settings->logo)))

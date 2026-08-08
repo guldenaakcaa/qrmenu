@@ -32,6 +32,22 @@ class APIController extends Controller
 
     public function AddWaiterCallToTable($qrCode)
     {
+        // GÜVENLİK: Oturum süresi kontrolü
+        \App\Models\Ayar::first();
+        $scanTime = session('qr_scan_time');
+        if (!$scanTime) {
+            $scanTime = request()->input('qr_scan_time');
+        }
+        
+        \Log::info("QR Scan Time Check in API: " . ($scanTime ?: "NULL"));
+        $settings = \App\Models\Ayar::first();
+        $timeoutMinutes = $settings ? ($settings->session_timeout_minutes ?? 120) : 120;
+        $timeoutSeconds = $timeoutMinutes * 60;
+
+        if (!$scanTime || (now()->timestamp - $scanTime) > $timeoutSeconds) {
+            return response()->json(['success' => false, 'message' => 'Lütfen masadaki QR kodu tekrar okutun. (Güvenlik nedeniyle süreniz dolmuştur)'], 403);
+        }
+
         return $this->qrCodeRepo->AddCallToTable($qrCode);
     }
 

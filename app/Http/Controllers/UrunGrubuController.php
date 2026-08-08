@@ -10,7 +10,20 @@ class UrunGrubuController extends Controller
     public function index()
     {
         $categories = UrunGrubu::orderBy('Sirano')->get();
-        $categoriesByMain = $categories->groupBy('AnaGrup');
+        $anaGruplar = \App\Models\AnaGrup::pluck('anaGrup', 'id');
+        
+        $categoriesByMain = $categories->groupBy(function($item) use ($anaGruplar) {
+            $mainId = $item->AnaGrup;
+            if ($mainId && isset($anaGruplar[$mainId])) {
+                return $anaGruplar[$mainId];
+            }
+            // If it's already a string name (legacy) and not an ID, use it
+            if ($mainId && !is_numeric($mainId)) {
+                return $mainId;
+            }
+            return 'Diğer / Ana Grup Yok';
+        });
+        
         return view('admin.categories.index', compact('categories', 'categoriesByMain'));
     }
 

@@ -19,6 +19,7 @@ class UrunKart extends Model
        'UrunAd',
        'UrunAdKisa',
        'UrunAciklama',
+       'alerjenler',
        'UrunGrubu',
         'UrunGrubu_id',
         'FixFiyat',

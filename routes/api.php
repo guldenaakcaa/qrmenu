@@ -31,7 +31,9 @@ Route::prefix('v1')->group(function () {
     Route::post('translate/add/{sifre}', [APIController::class, 'AddTranslateToLanguageFile']);
     Route::post('getforms', [MainController::class, 'GetAllForms']);
 
-    Route::post('call/waiter/{qrcode}', [APIController::class, 'AddWaiterCallToTable']);
+    Route::middleware(['web', 'throttle:20,1'])->group(function () {
+        Route::post('call/waiter/{qrcode}', [APIController::class, 'AddWaiterCallToTable']);
+    });
     Route::get('getwaitercalls', [APIController::class, 'GetActiveWaiterCalls']);
     Route::post('getwaitercalls', [APIController::class, 'GetActiveWaiterCalls']);
 

@@ -26,6 +26,7 @@
                     <th style="width: 1%; white-space: nowrap;">Görsel</th>
                     <th>Ürün Adı</th>
                     <th>Kategori</th>
+                    <th>Sıra</th>
                     <th>Fiyat</th>
                     @if(session('admin_role') == '0')
                     <th style="text-align: center;">Öne Çıkan</th>
@@ -46,7 +47,10 @@
                         @endif
                     </td>
                     <td>{{ $product->UrunAd }}</td>
-                    <td>{{ isset($categories[$product->UrunGrubu_id]) ? $categories[$product->UrunGrubu_id]->Urungrubu : 'Kategori Yok' }}</td>
+                    <td>{{ $product->UrunGrubu ?: (isset($categories[$product->UrunGrubu_id]) ? $categories[$product->UrunGrubu_id]->Urungrubu : (isset($categoriesByCode[$product->UrunGrubu_id]) ? $categoriesByCode[$product->UrunGrubu_id]->Urungrubu : 'Kategori Yok')) }}</td>
+                    <td>
+                        <input type="number" value="{{ $product->SiraNo }}" onchange="updateSira({{ $product->id }}, this)" style="width: 60px; padding: 4px; border: 1px solid #cbd5e1; border-radius: 4px; text-align: center;">
+                    </td>
                     <td>₺{{ number_format((float)$product->FixFiyat, 2) }}</td>
                     @if(session('admin_role') == '0')
                     <td style="text-align: center;">
@@ -177,6 +181,29 @@ function toggleFeatured(productId, checkbox) {
         console.error('Error:', error);
         alert('İşlem sırasında hata oluştu.');
         checkbox.checked = !checkbox.checked;
+    });
+}
+
+function updateSira(productId, input) {
+    let sira = input.value;
+    fetch(`/admin/products/${productId}/update-sira`, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({ SiraNo: sira })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if(!data.success) {
+            alert('Sıra güncellenirken hata oluştu!');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('İşlem sırasında hata oluştu.');
     });
 }
 </script>

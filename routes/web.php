@@ -33,6 +33,19 @@ Route::get('/product/{id}', [MainController::class, 'showproduct'])->name('produ
 Route::get('/istek', [MainController::class, 'istek']);
 Route::post('/istek', [MainController::class, 'UserForm'])->name('validate.form');
 
+Route::get('/baglanti-kur', function () {
+    try {
+        $publicStorage = public_path('storage');
+        if (file_exists($publicStorage) || is_link($publicStorage)) {
+            @unlink($publicStorage);
+        }
+        \Illuminate\Support\Facades\Artisan::call('storage:link');
+        return 'Görsel köprüsü (storage symlink) başarıyla kuruldu! Artık panelden yüklediğiniz tüm görseller sorunsuz görünür.';
+    } catch (\Exception $e) {
+        return 'Bağlantı kurulurken bir not oluştu: ' . $e->getMessage();
+    }
+});
+
 Route::get('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 Route::post('/admin/login', [AdminController::class, 'authenticate'])->name('admin.authenticate');
 Route::post('/admin/logout', [AdminController::class, 'logout'])->name('admin.logout');
@@ -55,6 +68,7 @@ Route::prefix('admin')->middleware(['check.admin'])->group(function () {
     Route::put('/admins/{id}', [AdminController::class, 'updateAdmin'])->name('admin.admins.update');
     Route::delete('/admins/{id}', [AdminController::class, 'destroyAdmin'])->name('admin.admins.destroy');
     Route::post('/products/{id}/toggle-featured', [UrunKartController::class, 'toggleFeatured'])->name('products.toggle_featured');
+    Route::post('/products/{id}/update-sira', [UrunKartController::class, 'updateSira'])->name('products.update_sira');
     Route::resource('main-categories', \App\Http\Controllers\AnaGrupController::class);
     Route::resource('categories', UrunGrubuController::class);
     Route::resource('products', UrunKartController::class);

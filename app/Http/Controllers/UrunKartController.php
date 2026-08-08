@@ -11,9 +11,10 @@ class UrunKartController extends Controller
 {
     public function index()
     {
-        $products = UrunKart::all();
+        $products = UrunKart::orderBy('UrunGrubu_id', 'asc')->orderBy('SiraNo', 'asc')->get();
         $categories = UrunGrubu::all()->keyBy('id');
-        return view('admin.products.index', compact('products', 'categories'));
+        $categoriesByCode = UrunGrubu::all()->keyBy('UrunGrubu_id');
+        return view('admin.products.index', compact('products', 'categories', 'categoriesByCode'));
     }
 
     public function create()
@@ -34,6 +35,7 @@ class UrunKartController extends Controller
         $request->validate([
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
+            'alerjenler' => 'nullable|string|max:255',
             'FixFiyat' => 'nullable|numeric',
             'kalori' => 'nullable|string|max:255',
             'hazirlanma_suresi' => 'nullable|string|max:255',
@@ -73,6 +75,7 @@ class UrunKartController extends Controller
         $request->validate([
             'UrunAd' => 'required|string|max:255',
             'UrunAciklama' => 'nullable|string',
+            'alerjenler' => 'nullable|string|max:255',
             'FixFiyat' => 'nullable|numeric',
             'kalori' => 'nullable|string|max:255',
             'hazirlanma_suresi' => 'nullable|string|max:255',
@@ -132,6 +135,27 @@ class UrunKartController extends Controller
             'success' => true,
             'message' => 'Ürünün öne çıkma durumu güncellendi.',
             'status' => $product->one_cikan
+        ]);
+    }
+
+    public function updateSira(Request $request, $id)
+    {
+        if (session('admin_role') !== '0') {
+            return response()->json(['success' => false, 'message' => 'Yetkisiz erişim.'], 403);
+        }
+
+        $request->validate([
+            'SiraNo' => 'required|integer'
+        ]);
+
+        $product = UrunKart::findOrFail($id);
+        $product->SiraNo = $request->SiraNo;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sıra güncellendi.',
+            'sira' => $product->SiraNo
         ]);
     }
 }

@@ -13,7 +13,7 @@
             <select id="AnaGrup" name="AnaGrup" class="form-control">
                 <option value="">-- Bağımsız / Ana Grup Yok --</option>
                 @foreach($mainCategories as $mg)
-                    <option value="{{ $mg->anaGrup }}">{{ $mg->anaGrup }}</option>
+                    <option value="{{ $mg->id }}">{{ $mg->anaGrup }}</option>
                 @endforeach
             </select>
         </div>

@@ -13,7 +13,7 @@ class MenuController extends Controller
     {
         // Eğer ne rotadan bir masa tanımı ne de GET parametresi yoksa yalın ve pastasız açılıştır; eski oturumu sil ve masasız kurgula
         if ($qrcode === null && !isset($_GET['masa']) && !isset($_GET['qr'])) {
-            session()->forget(['current_qrcode', 'current_masaismi']);
+            session()->forget(['current_qrcode', 'current_masaismi', 'current_masakodu']);
             return [null, null];
         }
 
@@ -22,6 +22,9 @@ class MenuController extends Controller
         }
         if (!$qrcode && isset($_GET['qr'])) {
             $qrcode = $_GET['qr'];
+        }
+        if (!$qrcode && session()->has('current_qrcode')) {
+            $qrcode = session()->get('current_qrcode');
         }
 
         $qrCodeCart = null;
@@ -78,6 +81,12 @@ class MenuController extends Controller
             }
         }
 
+        // Yeni Güvenlik: QR okutma zamanını kaydet (Sadece yoksa kaydet, sayfayı yenileyince süre sıfırlanmasın)
+        if ($qrcode && !session()->has('qr_scan_time')) {
+            session()->put('qr_scan_time', now()->timestamp);
+            session()->save();
+        }
+
         return [$qrcode, $qrCodeCart];
     }
 
@@ -96,7 +105,14 @@ class MenuController extends Controller
         $mainCategory = urldecode($mainCategory);
         $settings = \App\Models\Ayar::first();
         
-        $subCategories = UrunGrubu::where('AnaGrup', $mainCategory)->pluck('Urungrubu')->toArray();
+        $anaGrupModel = \App\Models\AnaGrup::where('anaGrup', $mainCategory)->orWhere('id', $mainCategory)->first();
+        $subCategoriesQuery = \App\Models\UrunGrubu::where('AnaGrup', $mainCategory);
+        if ($anaGrupModel) {
+            $subCategoriesQuery->orWhere('AnaGrup', $anaGrupModel->id)
+                               ->orWhere('AnaGrup', (string)$anaGrupModel->id);
+        }
+        
+        $subCategories = $subCategoriesQuery->orderBy('Sirano', 'asc')->pluck('Urungrubu')->toArray();
         
         if (empty($subCategories)) {
             return redirect()->route('home');
@@ -104,7 +120,7 @@ class MenuController extends Controller
 
         [$qrcode, $qrCodeCart] = $this->resolveQrCode(null);
 
-        $products = UrunKart::whereIn('UrunGrubu', $subCategories)->get();
+        $products = UrunKart::whereIn('UrunGrubu', $subCategories)->orderBy('SiraNo', 'asc')->get();
 
         foreach ($products as $product) {
             $aciklama = mb_strtolower($product->UrunAciklama ?? '', 'UTF-8');
@@ -164,8 +180,14 @@ class MenuController extends Controller
             }
         }
 
-        // Ürünleri metin tabanlı 'UrunGrubu' sütununa göre grupla
-        $productsByCategory = $products->groupBy('UrunGrubu');
+        // Ürünleri metin tabanlı 'UrunGrubu' sütununa göre, alt kategori sıralamasına sadık kalarak grupla
+        $productsByCategory = collect();
+        foreach ($subCategories as $subCatName) {
+            $groupProducts = $products->where('UrunGrubu', $subCatName);
+            if ($groupProducts->count() > 0) {
+                $productsByCategory->put($subCatName, $groupProducts->values());
+            }
+        }
 
         // Kategori isimleri (String koleksiyonu)
         $categories = $productsByCategory->keys();

@@ -68,23 +68,48 @@ class DesktopSyncController extends Controller
         DB::beginTransaction();
         try {
             foreach ($request->masalar as $masaData) {
-                Masa::updateOrCreate(
-                    ['isim' => $masaData['isim']],
-                    [
+                $masa = Masa::where('isim', $masaData['isim'])->first();
+                if (!$masa) {
+                    $slugBase = \Illuminate\Support\Str::slug($masaData['isim']);
+                    if (empty($slugBase)) $slugBase = 'masa';
+                    $qrCode = $slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4));
+                    while (\App\Models\QrCodeKart::where('QRCode', $qrCode)->exists() || \App\Models\Masa::where('slug', $qrCode)->exists()) {
+                        $qrCode = $slugBase . '-' . strtolower(\Illuminate\Support\Str::random(4));
+                    }
+                    $masa = Masa::create([
+                        'isim' => $masaData['isim'],
+                        'slug' => $qrCode,
                         'durum' => $masaData['durum'],
                         'guncel_tutar' => $masaData['guncel_tutar'] ?? 0
-                    ]
-                );
+                    ]);
+                    \App\Models\QrCodeKart::create([
+                        'QRCode' => $qrCode,
+                        'Cari_id' => 1,
+                        'QRTur' => 1,
+                        'KullaniciParola' => '',
+                        'Masa_id' => $masa->id,
+                        'Masaismi' => $masa->isim,
+                        'MusteriAd' => '',
+                        'KullaniciAd' => '',
+                        'Personel_id' => 0,
+                        'Status' => 1
+                    ]);
+                } else {
+                    $masa->update([
+                        'durum' => $masaData['durum'],
+                        'guncel_tutar' => $masaData['guncel_tutar'] ?? 0
+                    ]);
+                }
 
                 // Siparişleri güncelle (Masa detayları)
                 if (isset($masaData['siparisler']) && is_array($masaData['siparisler'])) {
                     // Mevcut siparişleri temizle
-                    \App\Models\MasaSiparis::where('masa_isim', $masaData['isim'])->delete();
+                    \App\Models\MasaSiparis::where('masa_isim', $masa->isim)->delete();
                     
                     // Yeni siparişleri ekle
                     foreach ($masaData['siparisler'] as $siparis) {
                         \App\Models\MasaSiparis::create([
-                            'masa_isim' => $masaData['isim'],
+                            'masa_isim' => $masa->isim,
                             'urun_adi' => $siparis['urun_adi'] ?? 'Bilinmeyen Ürün',
                             'adet' => $siparis['adet'] ?? 1,
                             'fiyat' => $siparis['fiyat'] ?? 0,
@@ -187,14 +212,14 @@ class DesktopSyncController extends Controller
             if ($request->has('ana_gruplar') && is_array($request->ana_gruplar)) {
                 foreach ($request->ana_gruplar as $ag) {
                     if (isset($ag['id'])) {
-                        \App\Models\AnaGrup::updateOrCreate(
-                            ['id' => $ag['id']],
-                            [
-                                'anaGrup' => $ag['anaGrup'] ?? '',
-                                'siraNo' => $ag['siraNo'] ?? 0,
-                                'anaGrupResimPath' => $ag['anaGrupResimPath'] ?? null
-                            ]
-                        );
+                        $updateData = [
+                            'anaGrup' => $ag['anaGrup'] ?? '',
+                            'siraNo' => $ag['siraNo'] ?? 0,
+                        ];
+                        if (!empty($ag['anaGrupResimPath'])) {
+                            $updateData['anaGrupResimPath'] = $ag['anaGrupResimPath'];
+                        }
+                        \App\Models\AnaGrup::updateOrCreate(['id' => $ag['id']], $updateData);
                     }
                 }
             }
@@ -203,16 +228,16 @@ class DesktopSyncController extends Controller
             if ($request->has('urun_gruplari') && is_array($request->urun_gruplari)) {
                 foreach ($request->urun_gruplari as $ug) {
                     if (isset($ug['UrunGrubu_id'])) {
-                        \App\Models\UrunGrubu::updateOrCreate(
-                            ['UrunGrubu_id' => $ug['UrunGrubu_id']],
-                            [
-                                'Urungrubu' => $ug['Urungrubu'] ?? '',
-                                'Sirano' => $ug['Sirano'] ?? 0,
-                                'Dil_id' => $ug['Dil_id'] ?? 1,
-                                'UrunGrubuResimPath' => $ug['UrunGrubuResimPath'] ?? null,
-                                'AnaGrup' => $ug['AnaGrup'] ?? null
-                            ]
-                        );
+                        $updateData = [
+                            'Urungrubu' => $ug['Urungrubu'] ?? '',
+                            'Sirano' => $ug['Sirano'] ?? 0,
+                            'Dil_id' => $ug['Dil_id'] ?? 1,
+                            'AnaGrup' => $ug['AnaGrup'] ?? null
+                        ];
+                        if (!empty($ug['UrunGrubuResimPath'])) {
+                            $updateData['UrunGrubuResimPath'] = $ug['UrunGrubuResimPath'];
+                        }
+                        \App\Models\UrunGrubu::updateOrCreate(['UrunGrubu_id' => $ug['UrunGrubu_id']], $updateData);
                     }
                 }
             }
@@ -221,40 +246,41 @@ class DesktopSyncController extends Controller
             if ($request->has('urunler') && is_array($request->urunler)) {
                 foreach ($request->urunler as $urun) {
                     if (isset($urun['id'])) {
-                        \App\Models\UrunKart::updateOrCreate(
-                            ['id' => $urun['id']],
-                            [
-                                'UrunTip' => $urun['UrunTip'] ?? 0,
-                                'UrunKod' => $urun['UrunKod'] ?? '',
-                                'UrunAd' => $urun['UrunAd'] ?? '',
-                                'UrunAdKisa' => $urun['UrunAdKisa'] ?? '',
-                                'UrunAciklama' => $urun['UrunAciklama'] ?? null,
-                                'UrunGrubu' => $urun['UrunGrubu'] ?? null,
-                                'UrunGrubu_id' => $urun['UrunGrubu_id'] ?? null,
-                                'FixFiyat' => $urun['FixFiyat'] ?? 0,
-                                'SiraNo' => $urun['SiraNo'] ?? 0,
-                                'P_Yarim' => $urun['P_Yarim'] ?? 0,
-                                'P_Birbucuk' => $urun['P_Birbucuk'] ?? 0,
-                                'P_Duble' => $urun['P_Duble'] ?? 0,
-                                'Porsiyon' => $urun['Porsiyon'] ?? 0,
-                                'ExtraOzellik' => $urun['ExtraOzellik'] ?? null,
-                                'Barkod' => $urun['Barkod'] ?? null,
-                                'UrunBirim' => $urun['UrunBirim'] ?? null,
-                                'FixFiyat2' => $urun['FixFiyat2'] ?? 0,
-                                'FixFiyat3' => $urun['FixFiyat3'] ?? 0,
-                                'Departman' => $urun['Departman'] ?? null,
-                                'UrunResimPath' => $urun['UrunResimPath'] ?? null,
-                                'AltGrup' => $urun['AltGrup'] ?? null,
-                                'Ch_Gram' => $urun['Ch_Gram'] ?? 0,
-                                'CokSatan' => $urun['CokSatan'] ?? 0,
-                                'textraozellik' => $urun['textraozellik'] ?? null,
-                                'P_Tanim' => $urun['P_Tanim'] ?? null,
-                                'kalori' => $urun['kalori'] ?? null,
-                                'hazirlanma_suresi' => $urun['hazirlanma_suresi'] ?? null,
-                                'has_lactose' => $urun['has_lactose'] ?? 0,
-                                'Upd_Tarih' => $urun['Upd_Tarih'] ?? now()
-                            ]
-                        );
+                        $updateData = [
+                            'UrunTip' => $urun['UrunTip'] ?? 0,
+                            'UrunKod' => $urun['UrunKod'] ?? '',
+                            'UrunAd' => $urun['UrunAd'] ?? '',
+                            'UrunAdKisa' => $urun['UrunAdKisa'] ?? '',
+                            'UrunAciklama' => $urun['UrunAciklama'] ?? null,
+                            'alerjenler' => $urun['alerjenler'] ?? null,
+                            'UrunGrubu' => $urun['UrunGrubu'] ?? null,
+                            'UrunGrubu_id' => $urun['UrunGrubu_id'] ?? null,
+                            'FixFiyat' => $urun['FixFiyat'] ?? 0,
+                            'SiraNo' => $urun['SiraNo'] ?? 0,
+                            'P_Yarim' => $urun['P_Yarim'] ?? 0,
+                            'P_Birbucuk' => $urun['P_Birbucuk'] ?? 0,
+                            'P_Duble' => $urun['P_Duble'] ?? 0,
+                            'Porsiyon' => $urun['Porsiyon'] ?? 0,
+                            'ExtraOzellik' => $urun['ExtraOzellik'] ?? null,
+                            'Barkod' => $urun['Barkod'] ?? null,
+                            'UrunBirim' => $urun['UrunBirim'] ?? null,
+                            'FixFiyat2' => $urun['FixFiyat2'] ?? 0,
+                            'FixFiyat3' => $urun['FixFiyat3'] ?? 0,
+                            'Departman' => $urun['Departman'] ?? null,
+                            'AltGrup' => $urun['AltGrup'] ?? null,
+                            'Ch_Gram' => $urun['Ch_Gram'] ?? 0,
+                            'CokSatan' => $urun['CokSatan'] ?? 0,
+                            'textraozellik' => $urun['textraozellik'] ?? null,
+                            'P_Tanim' => $urun['P_Tanim'] ?? null,
+                            'kalori' => $urun['kalori'] ?? null,
+                            'hazirlanma_suresi' => $urun['hazirlanma_suresi'] ?? null,
+                            'has_lactose' => $urun['has_lactose'] ?? 0,
+                            'Upd_Tarih' => $urun['Upd_Tarih'] ?? now()
+                        ];
+                        if (!empty($urun['UrunResimPath'])) {
+                            $updateData['UrunResimPath'] = $urun['UrunResimPath'];
+                        }
+                        \App\Models\UrunKart::updateOrCreate(['id' => $urun['id']], $updateData);
                     }
                 }
             }

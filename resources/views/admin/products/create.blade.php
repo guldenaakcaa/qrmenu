@@ -28,10 +28,20 @@
             <textarea id="UrunAciklama" name="UrunAciklama" class="form-control" placeholder="Örn: 150gr dana köfte, karamelize soğan, cheddar peyniri..."></textarea>
         </div>
 
+        <div class="form-group">
+            <label for="alerjenler"><i class="fa-solid fa-triangle-exclamation" style="color: #ef4444;"></i> Alerjen Uyarıları</label>
+            <input type="text" id="alerjenler" name="alerjenler" class="form-control" placeholder="Örn: Süt, Yer Fıstığı, Gluten içerir (Virgülle ayırın)">
+            <small style="color: #64748b;">Buraya yazılanlar, müşteri ekranında dikkat çekici bir uyarı etiketi olarak gösterilecektir.</small>
+        </div>
+
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 1.5rem;">
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="FixFiyat">Fiyat (₺)</label>
                 <input type="number" step="0.01" id="FixFiyat" name="FixFiyat" class="form-control" placeholder="Örn: 150.00">
+            </div>
+            <div class="form-group">
+                <label for="SiraNo">Sıra No (Listeleme Sırası)</label>
+                <input type="number" id="SiraNo" name="SiraNo" class="form-control" value="0">
             </div>
             <div class="form-group" style="margin-bottom: 0;">
                 <label for="kalori">Kalori (kcal)</label>

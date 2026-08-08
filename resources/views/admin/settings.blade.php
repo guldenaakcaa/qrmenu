@@ -75,7 +75,10 @@
 
                 <div class="form-group">
                     <label>Google Haritalar Linki</label>
-                    <input type="url" name="google_map_url" class="form-control" value="{{ $settings->google_map_url }}">
+                    <input type="url" name="google_map_url" class="form-control" value="{{ old('google_map_url', $settings->google_map_url ?? '') }}" placeholder="Örn: https://maps.app.goo.gl/...">
+                    <small style="color: #64748b; margin-top: 5px; display: block; font-size: 0.8rem;">
+                        <i class="fa-solid fa-circle-info" style="color: #3b82f6;"></i> <b>Önemli:</b> Koordinatların (Enlem/Boylam) otomatik çekilebilmesi için "Paylaş" butonundan aldığınız kısa linki değil, Google Haritalar'da restoranı açtığınızda <b>tarayıcının en üstündeki adres çubuğunda yazan uzun linki</b> kopyalayıp buraya yapıştırın.
+                    </small>
                 </div>
 
                 <div class="form-group">
@@ -135,9 +138,78 @@
     </div>
 
 
+    <!-- 3. GPS ve Güvenlik Ayarları -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="margin-bottom: 1.5rem; font-size: 1.25rem; color: #1e293b; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem;">
+            <i class="fa-solid fa-location-dot" style="color: #ef4444; margin-right: 8px;"></i> GPS ve Güvenlik Ayarları
+        </h3>
+        
+        <form action="{{ route('admin.settings.update') }}" method="POST">
+            @csrf
+            
+            <div class="form-group" style="margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+                    <input type="hidden" name="is_gps_check_active" value="0">
+                    <input type="checkbox" name="is_gps_check_active" value="1" {{ $settings->is_gps_check_active ? 'checked' : '' }} style="width: 20px; height: 20px; cursor: pointer;">
+                    <span style="font-weight: 600; color: #334155;">Siparişlerde GPS (Konum) Zorunluluğu Aktif Olsun</span>
+                </label>
+                <p style="margin: 8px 0 0 30px; font-size: 0.85rem; color: #64748b;">
+                    Aktif edildiğinde, müşteriler garson çağırırken veya menüyü incelerken konum izni vermek zorunda kalır. Müşterinin konumu, aşağıdaki restoran koordinatlarına 100 metreden uzaksa işlem engellenir. 
+                </p>
+            </div>
 
+            <div style="display: none;">
+                <div class="form-group">
+                    <label>Restoran Enlem (Latitude)</label>
+                    <input type="text" name="latitude" class="form-control" value="{{ $settings->latitude }}" placeholder="Örn: 41.0082">
+                </div>
+                <div class="form-group">
+                    <label>Restoran Boylam (Longitude)</label>
+                    <input type="text" name="longitude" class="form-control" value="{{ $settings->longitude }}" placeholder="Örn: 28.9784">
+                </div>
+            </div>
 
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                <div class="form-group">
+                    <label>İşlem Yetkisi Süresi (Dakika)</label>
+                    <input type="number" name="session_timeout_minutes" class="form-control" value="{{ $settings->session_timeout_minutes ?? 120 }}" min="1">
+                    <small style="color: #64748b; margin-top: 5px; display: block;">Müşteri QR kodu okuttuktan sonra kaç dakika boyunca sipariş verebilsin/garson çağırabilsin? (Örn: 120)</small>
+                </div>
+            </div>
+
+            <div style="text-align: right; margin-top: 1rem;">
+                <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Güvenlik Ayarlarını Kaydet</button>
+            </div>
+        </form>
+    </div>
 
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const mapUrlInput = document.querySelector('input[name="google_map_url"]');
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lngInput = document.querySelector('input[name="longitude"]');
+
+    if(mapUrlInput) {
+        mapUrlInput.addEventListener('input', function() {
+            let mapUrl = this.value;
+            const match = mapUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+            if (match) {
+                latInput.value = match[1];
+                lngInput.value = match[2];
+                
+                // Kullanıcıya küçük bir görsel geri bildirim verelim
+                latInput.style.backgroundColor = '#dcfce3';
+                lngInput.style.backgroundColor = '#dcfce3';
+                setTimeout(() => {
+                    latInput.style.backgroundColor = '';
+                    lngInput.style.backgroundColor = '';
+                }, 1500);
+            }
+        });
+    }
+});
+</script>
 
 @endsection

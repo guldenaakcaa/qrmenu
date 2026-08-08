@@ -60,12 +60,14 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
                 <div class="form-group">
                     <label>Telefon Numarası</label>
-                    <input type="text" name="telefon" class="form-control" value="{{ $settings->telefon }}" placeholder="05XX XXX XX XX">
+                    <input type="text" name="telefon" class="form-control" value="{{ $settings->telefon }}" placeholder="05XX XXX XX XX" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <small style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Sadece rakam giriniz, maksimum 11 hane.</small>
                 </div>
 
                 <div class="form-group">
                     <label>WhatsApp Numarası</label>
-                    <input type="text" name="whatsapp_number" class="form-control" value="{{ $settings->whatsapp_number }}" placeholder="905XXXXXXXXX">
+                    <input type="text" name="whatsapp_number" class="form-control" value="{{ $settings->whatsapp_number }}" placeholder="905XXXXXXXXX" maxlength="12" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                    <small style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Sadece rakam giriniz, maksimum 12 hane.</small>
                 </div>
                 
                 <div class="form-group">

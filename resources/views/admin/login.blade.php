@@ -259,7 +259,7 @@
             }
             .login-wrapper {
                 flex-direction: column;
-                margin: 0 auto;
+                margin: 0 auto 3rem; /* Added bottom margin */
                 width: 100%;
                 max-width: 400px;
                 border-radius: 20px;

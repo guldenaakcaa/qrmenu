@@ -144,7 +144,7 @@
         border-radius: 12px;
         font-size: 0.85rem;
         font-weight: 700;
-        margin: 30px 10px 0 10px;
+        margin: 45px 10px 0 10px;
         display: flex;
         align-items: center;
         justify-content: space-between;
@@ -280,7 +280,7 @@
         .header-actions { flex-direction: column; gap: 8px; align-items: stretch; }
         .header-actions h3 { font-size: 1.05rem; text-align: center; }
         .header-actions > div { display: flex; gap: 8px; justify-content: center; }
-        .garson-cagri-rozet { margin: 15px 0 0 0; font-size: 0.78rem; padding: 6px 10px; }
+        .garson-cagri-rozet { margin: 45px 0 0 0; font-size: 0.78rem; padding: 6px 10px; }
         .modal-content { padding: 1.25rem; width: 95%; }
         .siparis-table th, .siparis-table td { padding: 0.5rem 0.4rem; font-size: 0.78rem; }
         #kasaDetayContainer { padding: 0.5rem; }
